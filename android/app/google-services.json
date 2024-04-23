@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "215103583180",
+    "project_id": "geo-agency-mobile",
+    "storage_bucket": "geo-agency-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215103583180:android:b999f6a07eb0575266e369",
+        "android_client_info": {
+          "package_name": "com.example.geo_agency_mobile"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAiLqOEpYELU-GKKXwiU-m7tSC6FuSJvHM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
