@@ -51,6 +51,7 @@ dependencies:
   firebase_crashlytics: ^3.4.9
   firebase_analytics: ^10.4.2
   ioc_container: ^1.0.12
+  google_maps_flutter: ^2.5.3
 
 
 dev_dependencies:

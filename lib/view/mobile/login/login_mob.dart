@@ -1,6 +1,7 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import 'package:geo_agency_mobile/view/mobile/login/login_success_mob.dart';
+import 'package:geo_agency_mobile/view/mobile/agent_locations/agent_location_map.dart';
 import 'package:geo_agency_mobile/view/mobile/login/login_failed_mob.dart';
 import '../../../view_model/login/login_view_model.dart';
 import '../../rules/login_validation.dart';
@@ -103,7 +104,7 @@ class LoginMobile extends HookConsumerWidget {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
-                                        const LoginSuccessMobile()),
+                                         AgentLocationMapMobile()),
                               );
                             } else {
                               Navigator.push(
