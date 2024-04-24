@@ -8,7 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class AgentLocationMapMobile extends HookConsumerWidget {
   Completer<GoogleMapController> _controller = Completer();
 
-  static const LatLng _center = const LatLng(45.521563, -122.677433);
+  static const LatLng _center = const LatLng(12.50, 80.00);
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
@@ -29,6 +29,12 @@ class AgentLocationMapMobile extends HookConsumerWidget {
             target: _center,
             zoom: 11.0,
           ),
+          markers: {
+            const Marker(
+              markerId: MarkerId('Chennai'),
+              position: LatLng(12.88, 80.22)
+            )
+          },
         ),
       );
       },
