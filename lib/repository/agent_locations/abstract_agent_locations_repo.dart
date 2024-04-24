@@ -1,4 +1,4 @@
-abstract class AgentLocationsRepository {
+abstract class AgentLocationsLocalRepository {
   List<String> getAgentNames();
   List<List<double>> getAgentPositions();
   List<double> getParticularAgentLocation(int agent_id);

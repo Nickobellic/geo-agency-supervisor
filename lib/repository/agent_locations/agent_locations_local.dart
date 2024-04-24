@@ -2,9 +2,13 @@ import 'package:geo_agency_mobile/data/Agent_data.dart' as agentData;
 import 'package:geo_agency_mobile/model/Agent.dart';
 import 'package:geo_agency_mobile/repository/agent_locations/abstract_agent_locations_repo.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
+import 'package:riverpod/riverpod.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
 
-class AgentLocationsImpl extends AgentLocationsRepository {
+final AgentLocationLocalProvider = Provider<AgentLocationsLocalRepository>((_) => AgentLocationsLocalImpl()); // Provider for Login Repository
+
+
+class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
 
   List<String> getAgentNames() {
     try {
@@ -52,9 +56,14 @@ class AgentLocationsImpl extends AgentLocationsRepository {
   void updateAgentLocation(int agent_id, List<double> location) {
     try{
       talker.info("Initiating Agent $agent_id's position update");
-      
-    } catch(e) {
+      List<Agent> thatAgent = agentData.availableAgents.where((agent) => agent.agentID == agent_id).toList();
+      int agentInfo = agentData.availableAgents.indexOf(thatAgent[0]);
 
+      agentData.availableAgents[agentInfo].position = location;
+      talker.info("Agent $agent_id's position updated successfully");
+
+    } catch(e) {
+      talker.error("Error in updating Agent $agent_id's position: $e.toString()");
     }
   }
 

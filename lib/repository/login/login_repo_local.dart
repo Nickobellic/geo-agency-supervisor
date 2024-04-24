@@ -3,13 +3,13 @@ import 'package:geo_agency_mobile/repository/login/abstract_login_repository.dar
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talker/talker.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
+import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import "package:shared_preferences/shared_preferences.dart";
 
 final LoginRepositoryLocalProvider = Provider<LoginRepositoryLocal>((_) => LoginRepositoryLocalImpl()); // Provider for Login Repository
 
 class LoginRepositoryLocalImpl extends LoginRepositoryLocal {
-  final talker = Talker();
 
     @override
   List<String> getUsernames() { 
