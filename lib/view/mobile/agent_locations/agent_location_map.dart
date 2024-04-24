@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:geo_agency_mobile/utils/MapCenterBounds.dart' as get_center;
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -8,7 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class AgentLocationMapMobile extends HookConsumerWidget {
   Completer<GoogleMapController> _controller = Completer();
 
-  static const LatLng _center = const LatLng(12.50, 80.00);
+  static LatLng _center = const LatLng(12.50, 80.00);
 
   void _onMapCreated(GoogleMapController controller) {
     _controller.complete(controller);
@@ -22,22 +23,18 @@ class AgentLocationMapMobile extends HookConsumerWidget {
       builder: (context, ref, child) {
         final agentLocations = ref.watch(agentLocationVMProvider);
 
+        _center = agentLocations.findCenter();
         final agentInfos = agentLocations.getAgentInfo();
-        Set<Marker> markerList = {};
-        List<LatLng> latLongs = [];
-
-        agentInfos.forEach((key, value) {
-          final LatLng latAndLon = LatLng(value[0], value[1]);
-          markerList.add(
-            Marker(
-              markerId: MarkerId(key),
-              position: latAndLon
-            )
-          );
-          latLongs.add(latAndLon);
+        List<LatLng> latLons = [];
+        agentInfos.forEach((key, value) { 
+          latLons.add(LatLng(value[0], value[1]));
         });
 
+        final markerList = agentLocations.createMarkers();
+        
+        LatLngBounds bounds = get_center.boundsFromLatLngList(latLons);
 
+        print(bounds);
         return Scaffold(
         appBar: AppBar(
           title: Text('Agents'),
@@ -47,9 +44,10 @@ class AgentLocationMapMobile extends HookConsumerWidget {
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
             target: _center,
-            zoom: 11.0,
+            zoom: 15.0,
           ),
           markers: markerList,
+          cameraTargetBounds: CameraTargetBounds(bounds),
         ),
       );
       },
