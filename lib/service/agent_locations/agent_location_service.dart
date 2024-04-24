@@ -44,6 +44,14 @@ class AgentLocationService {
     }
   }
 
+  void updateLocation(int agent_id, List<double> location) {
+    try {
+      final updated = localRep.updateAgentLocation(agent_id, location);
+    } catch(e) {
+      talker.error("Error in Updating Location: $e.toString()");
+    }
+  }
+
   List<double> getLatLonMean() {
     try{
       final allPositions = localRep.getAgentPositions();

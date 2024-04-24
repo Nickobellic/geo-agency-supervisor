@@ -64,4 +64,13 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
           return {};
         }
   }
+
+  void updateFirstAgentLocation() {
+    try {
+      final thatAgentLocation = agentLocationService.retrieveLatLons();
+      agentLocationService.updateLocation(1001, thatAgentLocation[1]);
+    } catch(e) {
+      talker.error("Error in updating First Agent Location: $e.toString()");
+    }
+  }
 }

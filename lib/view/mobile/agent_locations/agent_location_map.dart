@@ -22,7 +22,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final agentLocations = ref.watch(agentLocationVMProvider);
-    final markerList = useState<Set<Marker>>({});
+    var markerList = useState<Set<Marker>>({});
     
 
     useEffect(() {
