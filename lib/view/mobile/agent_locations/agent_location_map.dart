@@ -26,15 +26,50 @@ class AgentLocationMapMobile extends HookConsumerWidget {
     
 
     useEffect(() {
-    void createAgentMarkers() async{
-      Set<Marker> markers = {};
-      markers = await agentLocations.createMarkers();
-      markerList.value = markers;
-    }  
-    createAgentMarkers();
+    void createAgentMarkers() async {
+  Set<Marker> markers = {};
+  markers = await agentLocations.createMarkers();
+
+  
+
+  // Update markerList.value with the updated markers
+  markerList.value = markers;
+}  
+      createAgentMarkers();
+
     }, []);
 
-    print(markerList);
+    useEffect(() {
+      void moveSecondMarker() async {
+
+  Set<Marker> updatedMarkers = {};
+
+
+  int index = 0;
+
+  for (var marker in markerList.value) {
+    if (index == 1) {
+      LatLng currentPosition = marker.position;
+      LatLng newPosition = LatLng(currentPosition.latitude + 0.2, currentPosition.longitude + 0.2);
+      Marker updatedMarker = Marker(
+        markerId: marker.markerId,
+        position: newPosition,
+      );
+      updatedMarkers.add(updatedMarker);
+    } else {
+      updatedMarkers.add(marker);
+    }
+    index++;
+  }
+  markerList.value = updatedMarkers;
+      }
+
+        Timer.periodic(Duration(seconds: 5), (timer) {
+      moveSecondMarker();
+    });
+    });
+
+
     return Consumer(
       builder: (context, ref, child) {
 
@@ -57,7 +92,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
             target: _center,
-            zoom: 15.0,
+            zoom: 5.0,
           ),
           markers: markerList.value,
           cameraTargetBounds: CameraTargetBounds(bounds),
