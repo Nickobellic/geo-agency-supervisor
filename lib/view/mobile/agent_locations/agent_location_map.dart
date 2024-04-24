@@ -17,11 +17,26 @@ class AgentLocationMapMobile extends HookConsumerWidget {
 
   }
 
+
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final agentLocations = ref.watch(agentLocationVMProvider);
+    final markerList = useState<Set<Marker>>({});
+    
+
+    useEffect(() {
+    void createAgentMarkers() async{
+      Set<Marker> markers = {};
+      markers = await agentLocations.createMarkers();
+      markerList.value = markers;
+    }  
+    createAgentMarkers();
+    }, []);
+
+    print(markerList);
     return Consumer(
       builder: (context, ref, child) {
-        final agentLocations = ref.watch(agentLocationVMProvider);
 
         _center = agentLocations.findCenter();
         final agentInfos = agentLocations.getAgentInfo();
@@ -29,8 +44,6 @@ class AgentLocationMapMobile extends HookConsumerWidget {
         agentInfos.forEach((key, value) { 
           latLons.add(LatLng(value[0], value[1]));
         });
-
-        final markerList = agentLocations.createMarkers();
         
         LatLngBounds bounds = get_center.boundsFromLatLngList(latLons);
 
@@ -46,7 +59,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
             target: _center,
             zoom: 15.0,
           ),
-          markers: markerList,
+          markers: markerList.value,
           cameraTargetBounds: CameraTargetBounds(bounds),
         ),
       );

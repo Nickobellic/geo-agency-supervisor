@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:geo_agency_mobile/service/agent_locations/agent_location_service.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
@@ -39,9 +40,12 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     }
   }
 
-  Set<Marker> createMarkers() {
+  Future<Set<Marker>> createMarkers() async{
         try {
         final agentInfos = agentLocationService.retrieveAgentInfo();
+          //final customImage = await BitmapDescriptor.fromAssetImage(
+         //ImageConfiguration(devicePixelRatio: 2.5),
+         //'assets/images/agent_icon.png');
         Set<Marker> markerList = {};
 
         agentInfos.forEach((key, value) {
@@ -49,7 +53,8 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
           markerList.add(
             Marker(
               markerId: MarkerId(key),
-              position: latAndLon
+              position: latAndLon,
+              //icon: customImage
             )
           );
         });
