@@ -1,9 +1,8 @@
-import 'dart:ffi';
-
 import 'package:geo_agency_mobile/repository/agent_locations/agent_locations_local.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 
 final agentLocationServiceProvider = Provider<AgentLocationService>((ref) {
@@ -14,6 +13,18 @@ class AgentLocationService {
   final AgentLocationsLocalImpl localRep;
 
   AgentLocationService({required this.localRep});
+
+  Future<List<double>> getCurrentLocation() async{
+    try {
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    final latitude = position.latitude;
+    final longitude = position.longitude;
+    return [latitude, longitude];
+    } catch(e) {
+      talker.error("Error in getting Current Location: $e.toString()");
+      return [];
+    }
+  }
 
   Map<String, dynamic> retrieveAgentInfo() {
     try {

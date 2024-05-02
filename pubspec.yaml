@@ -52,6 +52,8 @@ dependencies:
   firebase_analytics: ^10.4.2
   ioc_container: ^1.0.12
   google_maps_flutter: ^2.5.3
+  google_maps_flutter_web: ^0.5.4+3
+  socket_io_client: ^2.0.3+1
 
 
 dev_dependencies:

@@ -1,14 +1,17 @@
 import "package:flutter/material.dart";
 import 'package:flutter_hooks/flutter_hooks.dart';
 import '../../rules/login_validation.dart';
+import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:geo_agency_mobile/view_model/talker_logger/observer.dart';
 import 'package:talker/talker.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import 'package:geo_agency_mobile/helper/socket_events.dart';
 import '../../../view_model/login/login_view_model.dart';
 import 'package:geo_agency_mobile/view/desktop/login/login_success_web.dart';
 import 'package:geo_agency_mobile/view/desktop/login/login_failed_web.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:geo_agency_mobile/view/desktop/agent_locations/agent_location_map_web.dart';
 // Login View -> User interactible UI
 
 
@@ -29,11 +32,13 @@ class LoginWeb extends HookConsumerWidget {
     final passwordControllerState = useState('');
     //final observer = CrashlitycsTalkerObserver(crashlytics: _crashlytics);
 
+
     return Consumer(
       // Use Consumer to access the Provider methods
       builder: (context, ref, child) {
         final state =
             ref.watch(loginVMProvider); // Using the View Model Provider
+        final agentLocations = ref.watch(agentLocationVMProvider);
 
         return Scaffold(
             key: _scaffoldKey,
@@ -65,9 +70,9 @@ class LoginWeb extends HookConsumerWidget {
                                         value, "Username"),
                                 obscureText: false,
                                 controller: usernameController,
-                                onChanged: (value) => ref
-                                    .read(usernameControllerState.notifier)
-                                    .state = value,
+                                onChanged: (value) => 
+                                    ref.read(usernameControllerState.notifier).state = value
+                                    ,
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(),
                                   label: Center(
@@ -142,13 +147,15 @@ class LoginWeb extends HookConsumerWidget {
                                 //print(existingUser); // Prints the Shared Preferences
                                 print("$username & $password");
                                 //@GR - Show snackbar from Repo layer, use globalkey without context. Annotate with @ResponseHandler - see login_repo_remote
-
                                 if (existingUser["valid"] == true) {
+                                    dynamic location = await agentLocations.currentLocation();
+                                  checkLocation(location);
+
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            const LoginSuccessWeb()),
+                                             AgentLocationMapWeb()),
                                   );
                                 } else {
                                   Navigator.push(

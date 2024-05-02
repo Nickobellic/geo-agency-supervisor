@@ -73,4 +73,14 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
       talker.error("Error in updating First Agent Location: $e.toString()");
     }
   }
+
+  Future<List<double>> currentLocation() async{
+    try {
+      final updatedLocation = await agentLocationService.getCurrentLocation();
+      return updatedLocation; 
+    } catch(e) {
+      talker.error("Error in getting Current Location: $e.toString()");
+      return [];
+    }
+  }
 }

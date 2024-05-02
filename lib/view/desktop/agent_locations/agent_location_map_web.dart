@@ -6,7 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-class AgentLocationMapMobile extends HookConsumerWidget {
+class AgentLocationMapWeb extends HookConsumerWidget {
   Completer<GoogleMapController> _controller = Completer();
 
   static LatLng _center = const LatLng(12.50, 80.00);
@@ -23,9 +23,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final agentLocations = ref.watch(agentLocationVMProvider);
     var markerList = useState<Set<Marker>>({});
-    var dropdownvalue = useState<String>("First Element");
-
-    var items = ['First Element', 'Second', 'Third', 'Fourth'];
+    
 
     useEffect(() {
     void createAgentMarkers() async {
@@ -64,13 +62,13 @@ class AgentLocationMapMobile extends HookConsumerWidget {
     index++;
   }
   markerList.value = updatedMarkers;
-  
       }
 
         Timer.periodic(Duration(seconds: 5), (timer) {
       moveSecondMarker();
     });
     });
+
 
     return Consumer(
       builder: (context, ref, child) {
@@ -90,44 +88,17 @@ class AgentLocationMapMobile extends HookConsumerWidget {
           title: Text('Agents'),
           backgroundColor: Colors.green[700],
         ),
-        body: Stack(
-          children:[ GoogleMap(
+        body: GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
             target: _center,
-            zoom: 15.0,
+            zoom: 20.0,
           ),
           markers: markerList.value,
           cameraTargetBounds: CameraTargetBounds(bounds),
         ),
-          DropdownButton<String>( 
-                
-              // Initial Value 
-              value: dropdownvalue.value, 
-                
-              // Down Arrow Icon 
-              icon: const Icon(Icons.keyboard_arrow_down), 
-              alignment: Alignment.topRight,                
-              // Array list of items 
-              items: items.map((String items) { 
-                return DropdownMenuItem( 
-                  value: items, 
-                  child: Text(items), 
-                ); 
-              }).toList(), 
-              // After selecting the desired option,it will 
-              // change button value to selected value 
-              onChanged: (String? newValue) {  
-                dropdownvalue.value = newValue!;
-              }, 
-            )
-        ],
-        )
-      
       );
       },
     );
-    
 }
-  
 }
