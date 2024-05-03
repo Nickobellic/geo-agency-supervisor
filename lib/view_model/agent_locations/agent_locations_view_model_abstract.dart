@@ -2,7 +2,10 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 abstract class AgentLocationsViewModel {
-  Map<String, dynamic> getAgentInfo();
+  Map<int, dynamic> getAgentInfo();
   LatLng findCenter();
+  List<double> getAgentLocationFromDropdownLabel(String agent_name);
   Future<Set<Marker>> createMarkers();
+  void updateFirstAgentLocation();
+  Future<List<double>> currentLocation();
 }

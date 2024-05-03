@@ -25,6 +25,35 @@ class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
     }
   }
 
+  List<int> getAgentIDs() {
+    try {
+      List<int> ids = [];
+      talker.info("Initiating Agent ID Fetch");
+      agentData.availableAgents.forEach((agent) => {
+        ids.add(agent.agentID)
+      });
+      talker.info("Agent ID fetched successfully");
+      return ids;
+    } catch(e) {
+      talker.error("Error in fetching Agent IDs: $e.toString()");
+      return [];
+    }
+  }
+
+  List<double> getAgentDeliveryLocation(int agentID) {
+    try {
+      List<double> location = [];
+      talker.info("Initiating Agent Delivery location fetch");
+      final filteredResult = agentData.availableAgents.where((agent) => agent.agentID == agentID).toList();
+      location = filteredResult[0].deliveryPosition;
+
+      return location;
+    } catch(e) {
+      talker.error("Error in fetching Delivery location for Agent ID $agentID: $e.toString()");
+      return [];
+    }
+  }
+
   List<List<double>> getAgentPositions() {
     try {
       List<List<double>> positions = [];

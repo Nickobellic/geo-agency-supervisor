@@ -18,11 +18,11 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
   final AgentLocationService agentLocationService;
   AgentLocationsViewModelImpl({required this.agentLocationService});
   
-
+  // Get All Agent's Information
   @ResponseHandler()
-  Map<String, dynamic> getAgentInfo() {
+  Map<int, dynamic> getAgentInfo() {
     try {
-      Map<String, dynamic> agentDetails = agentLocationService.retrieveAgentInfo();
+      Map<int, dynamic> agentDetails = agentLocationService.retrieveAgentInfo();
       //showSnackbar("Agent Details Obtained Successfully");
       return agentDetails;
     } catch(e) {
@@ -31,6 +31,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     }
   }
 
+  // Find Center of the Initial Map Render
   LatLng findCenter() {
     try {
       final agentDetails = agentLocationService.getLatLonMean();
@@ -40,6 +41,25 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     }
   }
 
+  // Get Agent Location from Dropdown Label result
+  List<double> getAgentLocationFromDropdownLabel(String agent_name) {
+    try {
+      talker.info("Initializing Agent ID fetch for Dropdown");
+      final agentInfos = agentLocationService.retrieveAgentInfo();
+      int foundAgentID = agentInfos.keys.firstWhere((agent_id) => agentInfos[agent_id]["name"] == agent_name, orElse: () => 0);
+      talker.info("Agent ID retrieved for Dropdown successfully");
+
+      talker.info("Retrieving position of the Agent");
+      List<double> agentPosition = agentInfos[foundAgentID]["position"];
+
+      return agentPosition;
+    } catch(e) {
+      talker.error("Error in fetching Agent ID from Dropdown Label: $e.toString()");
+      return [];
+    }
+  }
+
+  // Create markers for agents
   Future<Set<Marker>> createMarkers() async{
         try {
         final agentInfos = agentLocationService.retrieveAgentInfo();
@@ -49,11 +69,15 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         Set<Marker> markerList = {};
 
         agentInfos.forEach((key, value) {
-          final LatLng latAndLon = LatLng(value[0], value[1]);
+          final LatLng latAndLon = LatLng(value["position"][0], value["position"][1]);
           markerList.add(
             Marker(
-              markerId: MarkerId(key),
+              markerId: MarkerId(value["name"]),
               position: latAndLon,
+              infoWindow: InfoWindow(
+                title: value["name"],
+                snippet: "$key"
+              )
               //icon: customImage
             )
           );
@@ -65,6 +89,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         }
   }
 
+  // Update first Agent's Location in map
   void updateFirstAgentLocation() {
     try {
       final thatAgentLocation = agentLocationService.retrieveLatLons();
@@ -74,6 +99,8 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     }
   }
 
+
+  // Get Current Location of all agents
   Future<List<double>> currentLocation() async{
     try {
       final updatedLocation = await agentLocationService.getCurrentLocation();

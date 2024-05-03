@@ -7,12 +7,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class AgentLocationMapMobile extends HookConsumerWidget {
-  Completer<GoogleMapController> _controller = Completer();
+  GoogleMapController? _controller;
 
-  static LatLng _center = const LatLng(12.50, 80.00);
 
   void _onMapCreated(GoogleMapController controller) {
-    _controller.complete(controller);
+    _controller = controller;
     //_controller.animateCamera(CameraUpdate.newLatLngBounds(_bounds(markers), 50));
 
   }
@@ -23,9 +22,8 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final agentLocations = ref.watch(agentLocationVMProvider);
     var markerList = useState<Set<Marker>>({});
-    var dropdownvalue = useState<String>("First Element");
-
-    var items = ['First Element', 'Second', 'Third', 'Fourth'];
+    var dropdownvalue = useState<String>("Agent1");
+    var center = useState<LatLng>(LatLng(12.50, 80.00));
 
     useEffect(() {
     void createAgentMarkers() async {
@@ -52,10 +50,11 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   for (var marker in markerList.value) {
     if (index == 1) {
       LatLng currentPosition = marker.position;
-      LatLng newPosition = LatLng(currentPosition.latitude + 0.0002, currentPosition.longitude + 0.0002);
+      LatLng newPosition = LatLng(currentPosition.latitude + 0.000002, currentPosition.longitude + 0.000002);
       Marker updatedMarker = Marker(
         markerId: marker.markerId,
         position: newPosition,
+        infoWindow: InfoWindow(title: marker.infoWindow.title, snippet: marker.infoWindow.snippet)
       );
       updatedMarkers.add(updatedMarker);
     } else {
@@ -67,7 +66,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   
       }
 
-        Timer.periodic(Duration(seconds: 5), (timer) {
+        Timer.periodic(Duration(seconds: 1), (timer) {
       moveSecondMarker();
     });
     });
@@ -75,16 +74,17 @@ class AgentLocationMapMobile extends HookConsumerWidget {
     return Consumer(
       builder: (context, ref, child) {
 
-        _center = agentLocations.findCenter();
+        //center.value = agentLocations.findCenter();
         final agentInfos = agentLocations.getAgentInfo();
         List<LatLng> latLons = [];
+        List<String> items = [];
         agentInfos.forEach((key, value) { 
-          latLons.add(LatLng(value[0], value[1]));
+          latLons.add(LatLng(value["position"][0], value["position"][1]));
+          items.add(value["name"]);
         });
-        
+
         LatLngBounds bounds = get_center.boundsFromLatLngList(latLons);
 
-        print(bounds);
         return Scaffold(
         appBar: AppBar(
           title: Text('Agents'),
@@ -94,11 +94,10 @@ class AgentLocationMapMobile extends HookConsumerWidget {
           children:[ GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
-            target: _center,
+            target: center.value,
             zoom: 15.0,
           ),
           markers: markerList.value,
-          cameraTargetBounds: CameraTargetBounds(bounds),
         ),
           DropdownButton<String>( 
                 
@@ -109,16 +108,23 @@ class AgentLocationMapMobile extends HookConsumerWidget {
               icon: const Icon(Icons.keyboard_arrow_down), 
               alignment: Alignment.topRight,                
               // Array list of items 
-              items: items.map((String items) { 
+              items: items.map((String item) { 
                 return DropdownMenuItem( 
-                  value: items, 
-                  child: Text(items), 
+                  value: item, 
+                  child: new Text(item), 
                 ); 
               }).toList(), 
               // After selecting the desired option,it will 
               // change button value to selected value 
-              onChanged: (String? newValue) {  
+              onChanged: (newValue) {  
+                print(newValue);
                 dropdownvalue.value = newValue!;
+                print(dropdownvalue.value);
+                final thatAgentPosition = agentLocations.getAgentLocationFromDropdownLabel(dropdownvalue.value);
+                print(thatAgentPosition);
+                center.value = LatLng(thatAgentPosition[0], thatAgentPosition[1]);
+                final thatAgentPos = markerList.value.firstWhere((marker) => marker.infoWindow.title == dropdownvalue.value).position;
+                _controller?.animateCamera(CameraUpdate.newLatLng(thatAgentPos));
               }, 
             )
         ],

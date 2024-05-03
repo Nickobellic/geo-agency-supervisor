@@ -30,7 +30,7 @@ class LoginRepositoryRemoteImpl extends LoginRepositoryRemote {
       final dynamic response = await DioClient.instance
           .get("/users/2"); // Response from DioClient in Helper
       data.usersFromDB
-          .add(User(response["data"]["email"], response["data"]["first_name"]));
+          .add(User(1000+data.usersFromDB.length,response["data"]["email"], response["data"]["first_name"], 'agent'));
       talker.info("User detail retrieved from API");
       return ([response["data"]["email"], response["data"]["first_name"]]);
     } on DioException catch (e) {

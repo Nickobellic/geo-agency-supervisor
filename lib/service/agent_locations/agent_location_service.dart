@@ -26,15 +26,19 @@ class AgentLocationService {
     }
   }
 
-  Map<String, dynamic> retrieveAgentInfo() {
+  Map<int, dynamic> retrieveAgentInfo() {
     try {
         final agentNames = localRep.getAgentNames();
         final agentPositions = localRep.getAgentPositions();
+        final agentIDs = localRep.getAgentIDs();
 
-        Map<String, dynamic> detailsMap = {};
+        Map<int, dynamic> detailsMap = {};
         talker.info("Retrieving Agents Info");
         for(int agents=0; agents<agentNames.length; agents++) {
-          detailsMap[agentNames[agents]] = agentPositions[agents];
+          detailsMap[agentIDs[agents]] = {
+            "name": agentNames[agents],
+            "position": agentPositions[agents]
+          };
           }
         talker.info("Agents Info retrieved successfully");
         return detailsMap;
