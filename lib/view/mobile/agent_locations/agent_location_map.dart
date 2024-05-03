@@ -24,6 +24,9 @@ class AgentLocationMapMobile extends HookConsumerWidget {
     var markerList = useState<Set<Marker>>({});
     var dropdownvalue = useState<String>("Agent1");
     var center = useState<LatLng>(LatLng(12.50, 80.00));
+    Size size = MediaQuery.of(context).size;
+    double width = size.width*0.75;
+    double height = size.height*0.05;
 
     useEffect(() {
     void createAgentMarkers() async {
@@ -67,7 +70,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
       }
 
         Timer.periodic(Duration(seconds: 1), (timer) {
-      moveSecondMarker();
+      //moveSecondMarker();
     });
     });
 
@@ -99,14 +102,23 @@ class AgentLocationMapMobile extends HookConsumerWidget {
           ),
           markers: markerList.value,
         ),
-          DropdownButton<String>( 
+        Positioned(
+          left: width,
+          top: height,
+          child: Container(
+            padding: EdgeInsets.only(left: 15.0),
+          color: Colors.green,
+          child: DropdownButton<String>( 
                 
               // Initial Value 
               value: dropdownvalue.value, 
-                
+              borderRadius: BorderRadius.all(Radius.elliptical(5.0, 10.0)),
+              style: TextStyle(color: Colors.white),
+              dropdownColor: Colors.green,
               // Down Arrow Icon 
               icon: const Icon(Icons.keyboard_arrow_down), 
-              alignment: Alignment.topRight,                
+              
+              
               // Array list of items 
               items: items.map((String item) { 
                 return DropdownMenuItem( 
@@ -117,16 +129,16 @@ class AgentLocationMapMobile extends HookConsumerWidget {
               // After selecting the desired option,it will 
               // change button value to selected value 
               onChanged: (newValue) {  
-                print(newValue);
+                
                 dropdownvalue.value = newValue!;
-                print(dropdownvalue.value);
                 final thatAgentPosition = agentLocations.getAgentLocationFromDropdownLabel(dropdownvalue.value);
-                print(thatAgentPosition);
-                center.value = LatLng(thatAgentPosition[0], thatAgentPosition[1]);
-                final thatAgentPos = markerList.value.firstWhere((marker) => marker.infoWindow.title == dropdownvalue.value).position;
-                _controller?.animateCamera(CameraUpdate.newLatLng(thatAgentPos));
+                center.value = LatLng(thatAgentPosition[0], thatAgentPosition[1]); // This one is taking value from the hardcoded latitude
+                final thatAgentPos = markerList.value.firstWhere((marker) => marker.infoWindow.title == dropdownvalue.value).position; // This one chooses based on position of agent from map
+                _controller?.animateCamera(CameraUpdate.newLatLng(thatAgentPos)); // setting that as the location
               }, 
             )
+          )
+        )
         ],
         )
       

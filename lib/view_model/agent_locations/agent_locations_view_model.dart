@@ -3,6 +3,7 @@ import 'package:geo_agency_mobile/service/agent_locations/agent_location_service
 import 'package:geo_agency_mobile/service/service_locator.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
+import 'package:geo_agency_mobile/view/components/Chat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
@@ -74,9 +75,17 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
             Marker(
               markerId: MarkerId(value["name"]),
               position: latAndLon,
+              onTap: () {
+                  print("Redirecting to " + value["name"] + "'s chat");
+                  redirectToAnotherWidget(ChatToAgentMobile());
+                },
               infoWindow: InfoWindow(
+                
                 title: value["name"],
-                snippet: "$key"
+                snippet: "$key",
+                
+
+              
               )
               //icon: customImage
             )
