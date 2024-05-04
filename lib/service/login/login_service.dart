@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:geo_agency_mobile/model/User.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:geo_agency_mobile/helper/dio_payload_helper.dart';
@@ -35,6 +36,9 @@ class LoginService {
     };  
     talker.info("Creating payload for the Request");
     String signInPayload = await PayloadHelper.createPayload(reqDetails,_username, _password, "login");
+    User? thatUser = localRep.getLoggedUser(_username, _password);
+    String theirRole = thatUser!.role;
+    int theirID = thatUser.ID;
 
     List<String> fetchedUsernames = localRep.getUsernames();
     List<String> fetchedPasswords = localRep.getPasswords();
@@ -49,7 +53,7 @@ class LoginService {
       localRep.saveLoginInfo(_username, _password, true);  // If already a member, set logged in as true
           talker.info("Validation done");
           final message = "Authenticated Successfully";
-      return {"valid": true, "message": "Authenticated Successfully"};
+      return {"valid": true, "message": "Authenticated Successfully", "role": theirRole, "id": theirID};
     } else {
       localRep.saveLoginInfo(_username, _password, false); // If it is a new member, set logged in as false
           talker.info("Validation done");

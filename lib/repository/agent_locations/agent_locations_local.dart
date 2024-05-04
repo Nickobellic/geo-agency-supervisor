@@ -25,6 +25,18 @@ class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
     }
   }
 
+  Agent? getParticularAgentDetails(int agent_id){
+    try {
+      talker.info("Initiating Agent Details fetch");
+      Agent foundAgent = agentData.availableAgents.firstWhere((agent) => agent.agentID == agent_id);
+      talker.info("Agent details fetched successfully");
+      return foundAgent;
+    } catch(e) {
+      talker.error("Error in fetching Agent Details: $e.toString()");
+      return null;
+    }
+  }
+
   List<int> getAgentIDs() {
     try {
       List<int> ids = [];
@@ -40,19 +52,7 @@ class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
     }
   }
 
-  List<double> getAgentDeliveryLocation(int agentID) {
-    try {
-      List<double> location = [];
-      talker.info("Initiating Agent Delivery location fetch");
-      final filteredResult = agentData.availableAgents.where((agent) => agent.agentID == agentID).toList();
-      location = filteredResult[0].deliveryPosition;
-
-      return location;
-    } catch(e) {
-      talker.error("Error in fetching Delivery location for Agent ID $agentID: $e.toString()");
-      return [];
-    }
-  }
+  
 
   List<List<double>> getAgentPositions() {
     try {
@@ -69,18 +69,6 @@ class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
     }
   }
 
-  List<double> getParticularAgentLocation(int agent_id){
-    try {
-      talker.info("Initiating Agent $agent_id's position fetch");
-      List<Agent> thatAgentLocation = agentData.availableAgents.where((agent) => agent.agentID == agent_id).toList();
-      talker.info("Agent $agent_id's position fetched");
-      return thatAgentLocation[0].position;
-    } catch(e) {  
-      talker.error("Error in fetching Agent $agent_id's Location: $e.toString()");
-      return [];
-    }
-
-  }
 
   void updateAgentLocation(int agent_id, List<double> location) {
     try{

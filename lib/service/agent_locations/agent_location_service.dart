@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geo_agency_mobile/model/Agent.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 
 final agentLocationServiceProvider = Provider<AgentLocationService>((ref) {
@@ -64,6 +65,18 @@ class AgentLocationService {
       final updated = localRep.updateAgentLocation(agent_id, location);
     } catch(e) {
       talker.error("Error in Updating Location: $e.toString()");
+    }
+  }
+
+  Agent? getDetailOfAgent(int agent_id) {
+    try {
+      talker.info("Starting Agent Details fetch");
+      Agent? foundAgent = localRep.getParticularAgentDetails(agent_id);
+      talker.info("Sent to View Model successfully");
+      return foundAgent;
+    } catch(e) {
+      talker.error("Error in sending Agent ID $agent_id's details: $e.toString()");
+      return null;
     }
   }
 

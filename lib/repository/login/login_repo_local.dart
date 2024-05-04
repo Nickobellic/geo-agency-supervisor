@@ -2,6 +2,7 @@ import 'package:geo_agency_mobile/data/User_data.dart' as data;
 import 'package:geo_agency_mobile/repository/login/abstract_login_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:talker/talker.dart';
+import 'package:geo_agency_mobile/model/User.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -45,6 +46,18 @@ class LoginRepositoryLocalImpl extends LoginRepositoryLocal {
     return [];
   }
   }
+
+  User? getLoggedUser(String _username, String _password) {
+    try {
+      talker.info("Initiating Login User Role fetch");
+      User foundUser = data.usersFromDB.firstWhere((user) => (user.username == _username) && (user.password == _password) );
+      return foundUser;
+    } catch(e) {
+      talker.error("Error in fetching Logged In User's Role: $e.toString()");
+      return null;
+    }
+  }
+
 
     @override
   Future<void> saveLoginInfo(String _username, String _password, bool _logged) async {  // Saving Login Info in Shared Preferences

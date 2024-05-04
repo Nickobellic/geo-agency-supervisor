@@ -1,6 +1,7 @@
+import 'package:geo_agency_mobile/model/Agent.dart';
 abstract class AgentLocationsLocalRepository {
   List<String> getAgentNames();
   List<List<double>> getAgentPositions();
-  List<double> getParticularAgentLocation(int agent_id);
+  Agent? getParticularAgentDetails(int agent_id);
   void updateAgentLocation(int agent_id, List<double> location);
 }

@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import 'package:geo_agency_mobile/view/mobile/login/login_success_mob.dart';
 import 'package:geo_agency_mobile/view/mobile/agent_locations/agent_location_map.dart';
 import 'package:geo_agency_mobile/view/mobile/login/login_failed_mob.dart';
+import 'package:geo_agency_mobile/view/mobile/my_location/my_location.dart';
 import '../../../view_model/login/login_view_model.dart';
 import '../../rules/login_validation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -100,12 +101,22 @@ class LoginMobile extends HookConsumerWidget {
                                 existingUser); // Printing the data stored in Shared Preferences
                             //@GR - Show snackbar from Repo layer, use globalkey without context. Annotate with @ResponseHandler - see login_repo_remote
                             if (existingUser["valid"] == true) {
+                              if(existingUser["role"] == "admin") {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) =>
                                          AgentLocationMapMobile()),
+                              );                                
+                              } else if(existingUser["role"] == "agent") {
+                                Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                         MyLocationMobile(existingUser["id"])),
                               );
+                              }
+
                             } else {
                               Navigator.push(
                                 context,

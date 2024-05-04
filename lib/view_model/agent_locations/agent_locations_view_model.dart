@@ -98,6 +98,24 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         }
   }
 
+  Marker? createMarkerForAgent(int agent_id) {
+    try {
+      final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
+      double latitude = thatAgentDetails!.position[0];
+      double longitude = thatAgentDetails.position[1];
+
+      Marker thatAgentMarker = Marker(
+        markerId: MarkerId("$agent_id"),
+        position: LatLng(latitude, longitude)
+        );
+
+      return thatAgentMarker;
+    } catch(e) {
+      talker.error("Error in creating Marker for Agent ID $agent_id: $e.toString()");
+      return null;
+    }
+  }
+
   // Update first Agent's Location in map
   void updateFirstAgentLocation() {
     try {
