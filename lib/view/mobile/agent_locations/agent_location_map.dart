@@ -22,7 +22,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final agentLocations = ref.watch(agentLocationVMProvider);
     var markerList = useState<Set<Marker>>({});
-    var dropdownvalue = useState<String>("Agent1");
+    var dropdownvalue = useState<String>(" ");
     var center = useState<LatLng>(LatLng(12.50, 80.00));
     Size size = MediaQuery.of(context).size;
     double width = size.width*0.75;
@@ -54,6 +54,12 @@ class AgentLocationMapMobile extends HookConsumerWidget {
     if (index == 1) {
       LatLng currentPosition = marker.position;
       LatLng newPosition = LatLng(currentPosition.latitude + 0.000002, currentPosition.longitude + 0.000002);
+
+      if(dropdownvalue.value == "Agent3") {
+        center.value = newPosition;
+        _controller?.animateCamera(CameraUpdate.newLatLng(center.value));
+      }
+
       Marker updatedMarker = Marker(
         markerId: marker.markerId,
         position: newPosition,
@@ -70,7 +76,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
       }
 
         Timer.periodic(Duration(seconds: 1), (timer) {
-      //moveSecondMarker();
+      moveSecondMarker();
     });
     });
 
@@ -80,13 +86,13 @@ class AgentLocationMapMobile extends HookConsumerWidget {
         //center.value = agentLocations.findCenter();
         final agentInfos = agentLocations.getAgentInfo();
         List<LatLng> latLons = [];
-        List<String> items = [];
+        List<String> items = [" "];
         agentInfos.forEach((key, value) { 
+          
           latLons.add(LatLng(value["position"][0], value["position"][1]));
           items.add(value["name"]);
         });
 
-        LatLngBounds bounds = get_center.boundsFromLatLngList(latLons);
 
         return Scaffold(
         appBar: AppBar(

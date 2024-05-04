@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+
 
 class MyLocationMobile extends HookConsumerWidget {
   int myID;
@@ -28,6 +30,9 @@ class MyLocationMobile extends HookConsumerWidget {
     var deliveryMarker = useState<Marker>(Marker(markerId: MarkerId("Dummy Delivery Location")));
     var center = useState<LatLng>(LatLng(12.50, 80.00));
     var locationShowEnabled = useState<bool>(false);
+    var polyCoordinates = useState<Set<Polyline>>({});
+    Map<PolylineId, Polyline> polylines = {};
+    PolylinePoints polylinePoints = PolylinePoints();
     Size size = MediaQuery.of(context).size;
     double width = size.width*0.75;
     double height = size.height*0.05;
@@ -45,6 +50,52 @@ class MyLocationMobile extends HookConsumerWidget {
         deliveryMarker.value = yourDeliveryMarker!;
     }
 
+    _addPolyLine(List<LatLng> polylineCoordinates) {
+    PolylineId id = PolylineId("poly");
+    Polyline polyline = Polyline(
+      polylineId: id,
+      points: polylineCoordinates,
+      width: 8,
+    );
+      
+    }
+  
+
+    void getPolyline() async {
+      List<LatLng> polylineCoordinates = [];
+      Set<Polyline> polylineSet = {};
+
+      double sourceLatitude = markerIcon.value.position.latitude;
+      double sourceLongitude = markerIcon.value.position.longitude;
+
+      double destLatitude = deliveryMarker.value.position.latitude;
+      double destLongitude = deliveryMarker.value.position.longitude;
+      PolylineResult result = await polylinePoints.getRouteBetweenCoordinates("AIzaSyAF_RQ5A50TjztBn9ff_dWhsVHvkM7NrDQ",
+        PointLatLng(sourceLatitude, sourceLongitude), PointLatLng(destLatitude, destLongitude),
+        travelMode: TravelMode.driving);
+
+      print(result);
+      int count = 0;
+
+      if (result.points.isNotEmpty) {
+      result.points.forEach((PointLatLng point) {
+        polylineCoordinates.add(LatLng(point.latitude, point.longitude));
+
+        polylineSet.add(
+          Polyline(
+      polylineId: PolylineId("$count"),
+      points: polylineCoordinates,
+      width: 8,
+    )
+      );
+      count++;
+      });
+    } else {
+      print(result.errorMessage);
+    } 
+    
+    }
+    
     void updateSettings() {
       bool fetchedSettings = agentLocations.getAgentLocationSharingSettings(myID);
       locationShowEnabled.value = fetchedSettings;
@@ -52,6 +103,7 @@ class MyLocationMobile extends HookConsumerWidget {
 
     getMarkers();
     getDeliveryMarkers();
+    getPolyline();
     updateSettings();
 
     }, []);
@@ -72,6 +124,8 @@ class MyLocationMobile extends HookConsumerWidget {
             zoom: 15.0,
           ),
           markers: {markerIcon.value, deliveryMarker.value},
+          polylines: polyCoordinates.value,
+
         ),
         Positioned(
           left: width-130,
@@ -108,6 +162,7 @@ class MyLocationMobile extends HookConsumerWidget {
           top: height+40,
           left: width-130,
           child: ElevatedButton(onPressed: () {
+                  
                   _controller?.animateCamera(CameraUpdate.newLatLng(deliveryMarker.value.position)); // setting that as the location
           }, child: Text("Go to Delivery Location", style: TextStyle(fontSize: 16.0),)),
         )
