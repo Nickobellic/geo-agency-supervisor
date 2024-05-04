@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:geo_agency_mobile/service/agent_locations/agent_location_service.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
@@ -6,6 +7,7 @@ import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:geo_agency_mobile/view/components/Chat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:riverpod/riverpod.dart';
+import 'package:geo_agency_mobile/helper/google_map/marker_helper.dart';
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model_abstract.dart';
 
@@ -24,8 +26,17 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
   Map<int, dynamic> getAgentInfo() {
     try {
       Map<int, dynamic> agentDetails = agentLocationService.retrieveAgentInfo();
+
+      Map<int, dynamic> filteredAgents = {};
+
+      for(var key in agentDetails.keys) {
+        if(agentDetails[key]["location_share_enabled"] == true) {
+          filteredAgents[key] = agentDetails[key];
+        }
+      }
+
       //showSnackbar("Agent Details Obtained Successfully");
-      return agentDetails;
+      return filteredAgents;
     } catch(e) {
       //showSnackbar("Error in getting Agent Details: $e.toString()");
       return {};
@@ -64,12 +75,19 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
   Future<Set<Marker>> createMarkers() async{
         try {
         final agentInfos = agentLocationService.retrieveAgentInfo();
+          Map<int, dynamic> filteredAgents = {};
+
+      for(var key in agentInfos.keys) {
+        if(agentInfos[key]["location_share_enabled"] == true) {
+          filteredAgents[key] = agentInfos[key];
+        }
+      }
           //final customImage = await BitmapDescriptor.fromAssetImage(
          //ImageConfiguration(devicePixelRatio: 2.5),
          //'assets/images/agent_icon.png');
         Set<Marker> markerList = {};
 
-        agentInfos.forEach((key, value) {
+        filteredAgents.forEach((key, value) {
           final LatLng latAndLon = LatLng(value["position"][0], value["position"][1]);
           markerList.add(
             Marker(
@@ -113,6 +131,60 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     } catch(e) {
       talker.error("Error in creating Marker for Agent ID $agent_id: $e.toString()");
       return null;
+    }
+  }
+
+    Future<Marker>? createDeliveryMarkerForAgent(int agent_id) async {
+    try {
+      final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
+      double latitude = thatAgentDetails!.deliveryPosition[0];
+      double longitude = thatAgentDetails.deliveryPosition[1];
+
+      final asset = await rootBundle.load('assets/images/agent_icon.jpg');
+      final Uint8List markerIcoenter = await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+      final icon = BitmapDescriptor.fromBytes(markerIcoenter);
+
+
+      Marker thatAgentDeliveryMarker = Marker(
+        markerId: MarkerId("$agent_id-delivery"),
+        position: LatLng(latitude, longitude),
+        icon: icon,
+        infoWindow: InfoWindow(
+
+
+          title: "Delivery Location of $agent_id"
+        )
+        );
+
+      return thatAgentDeliveryMarker;
+    } catch(e) {
+      talker.error("Error in creating Marker for Agent ID $agent_id: $e.toString()");
+      return Future.value(null);
+    }
+  }
+
+  bool getAgentLocationSharingSettings(int agent_id) {
+    try {
+      final agentDetails = agentLocationService.getDetailOfAgent(agent_id);
+      talker.info("Fetching Agent Location Sharing Settings");
+      bool locationSettings = agentDetails!.showLocation;
+      talker.info("Agent Location Sharing Settings fetched");
+      return locationSettings;
+
+    } catch(e) {
+      talker.error("Error in getting Location Sharing Settings: $e.toString()");
+      return false;
+    }
+  }
+
+  void updateAgentLocationSettings(int agent_id, bool settings) {
+    try {
+      final agentDetails = agentLocationService.getDetailOfAgent(agent_id);
+      talker.info("Updating Agent Location settings");
+      agentDetails!.showLocation = settings;
+      talker.info("Agent Location settings updated successfully");
+    } catch(e) {
+      talker.error("Error in updating Agent Location Settings: $e.toString()");
     }
   }
 

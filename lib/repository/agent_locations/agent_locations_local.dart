@@ -51,7 +51,6 @@ class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
       return [];
     }
   }
-
   
 
   List<List<double>> getAgentPositions() {
@@ -68,6 +67,39 @@ class AgentLocationsLocalImpl extends AgentLocationsLocalRepository {
       return [];
     }
   }
+
+  List<List<double>> getAgentDeliveryLocations() {
+    try {
+      List<List<double>> positions = [];
+      talker.info("Initiating Agent Delivery Locations Fetch");
+      agentData.availableAgents.forEach((agent) => {
+        positions.add(agent.deliveryPosition)
+      });
+      talker.info("Agent Positions fetched successfully");
+      return positions;
+    } catch(e) {
+      talker.error("Error in fetching Agent Delivery Locations: $e.toString()");
+      return [];
+    }
+  }
+
+  List<bool> getAllAgentLocationSettings() {
+    try {
+      List<bool> settings = [];
+      talker.info("Initiating Agent Settings Fetch");
+      agentData.availableAgents.forEach((agent) => {
+        settings.add(agent.showLocation)
+      });
+      talker.info("Agent Settings fetched successfully");
+      return settings;
+    } catch(e) {
+      talker.error("Error in fetching Agent Settings: $e.toString()");
+      return [];
+    }
+  }
+
+
+  
 
 
   void updateAgentLocation(int agent_id, List<double> location) {

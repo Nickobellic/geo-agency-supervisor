@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:geo_agency_mobile/repository/agent_locations/agent_locations_local.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:riverpod/riverpod.dart';
-import 'package:geolocator/geolocator.dart';
+
 import 'package:geo_agency_mobile/model/Agent.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 
@@ -32,13 +34,17 @@ class AgentLocationService {
         final agentNames = localRep.getAgentNames();
         final agentPositions = localRep.getAgentPositions();
         final agentIDs = localRep.getAgentIDs();
+        final agentLocationSettings = localRep.getAllAgentLocationSettings();
+        final agentDeliveryLocations = localRep.getAgentDeliveryLocations();
 
         Map<int, dynamic> detailsMap = {};
         talker.info("Retrieving Agents Info");
         for(int agents=0; agents<agentNames.length; agents++) {
           detailsMap[agentIDs[agents]] = {
             "name": agentNames[agents],
-            "position": agentPositions[agents]
+            "position": agentPositions[agents],
+            "location_share_enabled": agentLocationSettings[agents],
+            "delivery_position": agentDeliveryLocations[agents]
           };
           }
         talker.info("Agents Info retrieved successfully");
@@ -79,6 +85,8 @@ class AgentLocationService {
       return null;
     }
   }
+
+  
 
   List<double> getLatLonMean() {
     try{
