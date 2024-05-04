@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:geo_agency_mobile/view/desktop/my_location/my_location_web.dart';
 import '../../rules/login_validation.dart';
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:geo_agency_mobile/view_model/talker_logger/observer.dart';
@@ -150,13 +151,18 @@ class LoginWeb extends HookConsumerWidget {
                                 if (existingUser["valid"] == true) {
                                     dynamic location = await agentLocations.currentLocation();
                                   checkLocation(location);
-
-                                  Navigator.push(
+                                  if(existingUser["role"] == "admin") {
+                                    Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
                                              AgentLocationMapWeb()),
                                   );
+                                  } else if(existingUser["role"] == "agent") {
+                                      Navigator.push(context, MaterialPageRoute(
+                                        builder: (context) => MyLocationWeb(existingUser["id"])));
+                                  }
+
                                 } else {
                                   Navigator.push(
                                     context,
