@@ -40,7 +40,7 @@ class MyLocationMobile extends HookConsumerWidget {
 
     useEffect(() {
     void getMarkers() async {
-      Marker? yourMarker = await agentLocations.createMarkerForAgent(myID);
+      Marker? yourMarker = await agentLocations.createMarkerForAgent(myID, "mobile");
       markerIcon.value = yourMarker!;
       String? yourName = yourMarker.infoWindow.title;
       agentName.value = yourName ?? "Agent";
@@ -49,7 +49,7 @@ class MyLocationMobile extends HookConsumerWidget {
     }
 
     void getDeliveryMarkers() async {
-        Marker? yourDeliveryMarker = await agentLocations.createDeliveryMarkerForAgent(myID);
+        Marker? yourDeliveryMarker = await agentLocations.createDeliveryMarkerForAgent(myID, 'mobile');
         deliveryMarker.value = yourDeliveryMarker!;
     }
 

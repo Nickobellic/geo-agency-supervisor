@@ -63,6 +63,7 @@ class AgentLocationMapWeb extends HookConsumerWidget {
       Marker updatedMarker = Marker(
         markerId: marker.markerId,
         position: newPosition,
+        icon: marker.icon,
         infoWindow: InfoWindow(title: marker.infoWindow.title, snippet: marker.infoWindow.snippet)
       );
       updatedMarkers.add(updatedMarker);

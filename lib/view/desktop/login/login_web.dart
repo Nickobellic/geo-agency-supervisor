@@ -150,7 +150,7 @@ class LoginWeb extends HookConsumerWidget {
                                 //@GR - Show snackbar from Repo layer, use globalkey without context. Annotate with @ResponseHandler - see login_repo_remote
                                 if (existingUser["valid"] == true) {
                                     dynamic location = await agentLocations.currentLocation();
-                                  checkLocation(location);
+                                  //checkLocation(location);
                                   if(existingUser["role"] == "admin") {
                                     Navigator.push(
                                     context,

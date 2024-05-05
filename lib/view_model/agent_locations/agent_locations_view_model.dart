@@ -84,9 +84,17 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         }
       }
 
+      var desktopIcon, mobileIcon;
+
+
       final asset = await rootBundle.load('assets/images/agent_icon.jpg');
+      if(device =="desktop") {
       final Uint8List markerIcoenter = await getBytesFromCanvas(30,30, asset.buffer.asUint8List());
-      final icon = BitmapDescriptor.fromBytes(markerIcoenter);
+      desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      } else {
+      final Uint8List markerIcoenter = await getBytesFromCanvas(100,80, asset.buffer.asUint8List());
+      mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      }
           //final customImage = await BitmapDescriptor.fromAssetImage(
          //ImageConfiguration(devicePixelRatio: 2.5),
          //'assets/images/agent_icon.png');
@@ -98,7 +106,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
             Marker(
               markerId: MarkerId(value["name"]),
               position: latAndLon,
-              icon: icon,
+              icon: desktopIcon ?? mobileIcon,
               onTap: () {
                   print("Redirecting to " + value["name"] + "'s chat");
                   if(device == "mobile") {
@@ -126,16 +134,23 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         }
   }
 
-  Future<Marker>? createMarkerForAgent(int agent_id) async{
+  Future<Marker>? createMarkerForAgent(int agent_id, String device) async{
     try {
       final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
       double latitude = thatAgentDetails!.position[0];
       double longitude = thatAgentDetails.position[1];
       String? agentName = thatAgentDetails.agentName;
 
+      var desktopIcon, mobileIcon;
       final asset = await rootBundle.load('assets/images/agent_icon.jpg');
+      if(device == "desktop") {
       final Uint8List markerIcoenter = await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
-      final icon = BitmapDescriptor.fromBytes(markerIcoenter);
+      desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      }
+      else {
+      final Uint8List markerIcoenter = await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+      mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      }
 
       Marker thatAgentMarker = Marker(
         markerId: MarkerId("$agent_id"),
@@ -143,7 +158,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         infoWindow: InfoWindow(
           title: agentName ?? 'Agent',
         ),
-        icon: icon
+        icon: desktopIcon ?? mobileIcon
         );
 
       return thatAgentMarker;
@@ -153,21 +168,29 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     }
   }
 
-    Future<Marker>? createDeliveryMarkerForAgent(int agent_id) async {
+    Future<Marker>? createDeliveryMarkerForAgent(int agent_id, String device) async {
     try {
       final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
       double latitude = thatAgentDetails!.deliveryPosition[0];
       double longitude = thatAgentDetails.deliveryPosition[1];
+      
+      var desktopIcon, mobileIcon;
 
       final asset = await rootBundle.load('assets/images/delivery_icon.png');
+
+      if(device == "desktop") {
       final Uint8List markerIcoenter = await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
-      final icon = BitmapDescriptor.fromBytes(markerIcoenter);
+      desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      } else {
+        final Uint8List markerIcoenter = await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+      mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      }
 
 
       Marker thatAgentDeliveryMarker = Marker(
         markerId: MarkerId("$agent_id-delivery"),
         position: LatLng(latitude, longitude),
-        icon: icon,
+        icon: desktopIcon ?? mobileIcon,
         infoWindow: InfoWindow(
 
 
