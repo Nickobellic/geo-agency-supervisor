@@ -76,9 +76,9 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   
       }
 
-      Timer.periodic(Duration(seconds: 1), (timer) {
+      /*Timer.periodic(Duration(seconds: 1), (timer) {
       moveSecondMarker();
-    });
+    });*/
     
     });
 
