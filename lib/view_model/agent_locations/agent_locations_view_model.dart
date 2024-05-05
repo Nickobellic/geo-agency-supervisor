@@ -83,6 +83,10 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
           filteredAgents[key] = agentInfos[key];
         }
       }
+
+      final asset = await rootBundle.load('assets/images/agent_icon.jpg');
+      final Uint8List markerIcoenter = await getBytesFromCanvas(30,30, asset.buffer.asUint8List());
+      final icon = BitmapDescriptor.fromBytes(markerIcoenter);
           //final customImage = await BitmapDescriptor.fromAssetImage(
          //ImageConfiguration(devicePixelRatio: 2.5),
          //'assets/images/agent_icon.png');
@@ -94,6 +98,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
             Marker(
               markerId: MarkerId(value["name"]),
               position: latAndLon,
+              icon: icon,
               onTap: () {
                   print("Redirecting to " + value["name"] + "'s chat");
                   if(device == "mobile") {
@@ -121,21 +126,30 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
         }
   }
 
-  Marker? createMarkerForAgent(int agent_id) {
+  Future<Marker>? createMarkerForAgent(int agent_id) async{
     try {
       final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
       double latitude = thatAgentDetails!.position[0];
       double longitude = thatAgentDetails.position[1];
+      String? agentName = thatAgentDetails.agentName;
+
+      final asset = await rootBundle.load('assets/images/agent_icon.jpg');
+      final Uint8List markerIcoenter = await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
+      final icon = BitmapDescriptor.fromBytes(markerIcoenter);
 
       Marker thatAgentMarker = Marker(
         markerId: MarkerId("$agent_id"),
-        position: LatLng(latitude, longitude)
+        position: LatLng(latitude, longitude),
+        infoWindow: InfoWindow(
+          title: agentName ?? 'Agent',
+        ),
+        icon: icon
         );
 
       return thatAgentMarker;
     } catch(e) {
       talker.error("Error in creating Marker for Agent ID $agent_id: $e.toString()");
-      return null;
+      return Future.value(null);
     }
   }
 
@@ -145,8 +159,8 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
       double latitude = thatAgentDetails!.deliveryPosition[0];
       double longitude = thatAgentDetails.deliveryPosition[1];
 
-      final asset = await rootBundle.load('assets/images/agent_icon.jpg');
-      final Uint8List markerIcoenter = await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+      final asset = await rootBundle.load('assets/images/delivery_icon.png');
+      final Uint8List markerIcoenter = await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
       final icon = BitmapDescriptor.fromBytes(markerIcoenter);
 
 

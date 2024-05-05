@@ -6,7 +6,7 @@ abstract class AgentLocationsViewModel {
   LatLng findCenter();
   List<double> getAgentLocationFromDropdownLabel(String agent_name);
   Future<Set<Marker>> createMarkers(String device);
-  Marker? createMarkerForAgent(int agent_id);
+  Future<Marker>? createMarkerForAgent(int agent_id);
   Future<Marker>? createDeliveryMarkerForAgent(int agent_id);
   bool getAgentLocationSharingSettings(int agent_id);
   void updateFirstAgentLocation();

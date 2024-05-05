@@ -40,7 +40,7 @@ class MyLocationMobile extends HookConsumerWidget {
 
     useEffect(() {
     void getMarkers() async {
-      Marker? yourMarker = agentLocations.createMarkerForAgent(myID);
+      Marker? yourMarker = await agentLocations.createMarkerForAgent(myID);
       markerIcon.value = yourMarker!;
       String? yourName = yourMarker.infoWindow.title;
       agentName.value = yourName ?? "Agent";
@@ -116,7 +116,12 @@ class MyLocationMobile extends HookConsumerWidget {
       builder: (context, ref, child) {
         return Scaffold(
         appBar: AppBar(
-          title: Text('$agentName.value'),
+          title: ValueListenableBuilder<String>(
+      valueListenable: agentName,
+      builder: (context, value, child) {
+        return Text(value ?? 'Agent'); // Use a default value if value is null
+      },
+    ),
           backgroundColor: Colors.green[700],
         ),
         body: Stack(
