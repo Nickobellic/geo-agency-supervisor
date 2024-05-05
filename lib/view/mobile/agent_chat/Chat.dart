@@ -24,6 +24,7 @@ class ChatToAgentMobile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     var messages = useState<List<String>>([]);
+    var thisMessage = useState<String>("");
   
     return Consumer(builder: (context, ref, child) {
       child: return Scaffold(  
@@ -34,14 +35,16 @@ class ChatToAgentMobile extends HookConsumerWidget {
       body: Column (
         children: <Widget> [
           Expanded(
-          child: ListView.builder(
-              
-              itemCount: messages.value.length,
-              itemBuilder: (context, index) {
-                
-                return ListTile(
-                  title: Text(messages.value[index]),
-                );
+          child: ValueListenableBuilder<List<String>>(
+              valueListenable: messages,
+              builder: (context, messageList, index) {
+                return ListView.builder(
+                  itemCount: messageList.length,
+                  itemBuilder: (context ,index) 
+                  {return ListTile(
+                  title: Text(messageList[index]),
+                );} );
+                itemBuilder: ;
               },
             )),
       Container(
@@ -52,6 +55,7 @@ class ChatToAgentMobile extends HookConsumerWidget {
         child: TextField(
           focusNode: _focusNode,
           controller: myController,
+          onChanged: (value) => {thisMessage.value = value},
           decoration: InputDecoration(
             hintText: "Enter your message.."
           ),
@@ -62,14 +66,17 @@ class ChatToAgentMobile extends HookConsumerWidget {
       floatingActionButton: FloatingActionButton(
         // When the user presses the button, show an alert dialog containing
         // the text that the user has entered into the text field.
-        onPressed: () {
-          var tempMsg = messages.value;
-          tempMsg.add(myController.text);
-          messages.value = tempMsg;
-        },
+          onPressed: () {
+    var tempMsg = List<String>.from(messages.value);
+    tempMsg.add(thisMessage.value);
+    messages.value = tempMsg;
+    thisMessage.value = ''; // Clear the input field
+    myController.clear();
+  },
         tooltip: 'Show me the value!',
         child: const Icon(Icons.send),
       ),
+      
       
     )
     );
