@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
     return  MaterialApp(
       home: MainPage.platformSpecificUI(context),
       scaffoldMessengerKey: snackbarKey,
+      navigatorKey: globalNavigatorKey,
       debugShowCheckedModeBanner: false,
     );
   }

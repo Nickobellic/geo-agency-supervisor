@@ -11,12 +11,12 @@ import 'package:talker/talker.dart';
 final GlobalKey<ScaffoldMessengerState> snackbarKey =
     GlobalKey<ScaffoldMessengerState>();
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<NavigatorState> globalNavigatorKey = GlobalKey<NavigatorState>();
+
 void redirectToAnotherWidget(Widget widget) {
-  navigatorKey.currentState?.push(MaterialPageRoute(
+  globalNavigatorKey.currentState?.push(MaterialPageRoute(
     builder: (context) => widget,
   ));
 }
-
 
 final talker = Talker();

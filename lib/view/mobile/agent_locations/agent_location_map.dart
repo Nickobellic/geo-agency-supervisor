@@ -31,7 +31,7 @@ class AgentLocationMapMobile extends HookConsumerWidget {
     useEffect(() {
     void createAgentMarkers() async {
   Set<Marker> markers = {};
-  markers = await agentLocations.createMarkers();
+  markers = await agentLocations.createMarkers("mobile");
 
   
 
@@ -75,9 +75,10 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   
       }
 
-        Timer.periodic(Duration(seconds: 1), (timer) {
+/*        Timer.periodic(Duration(seconds: 1), (timer) {
       moveSecondMarker();
     });
+    */
     });
 
     return Consumer(

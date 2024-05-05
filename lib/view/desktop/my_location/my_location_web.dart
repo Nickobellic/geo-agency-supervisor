@@ -28,6 +28,7 @@ class MyLocationWeb extends HookConsumerWidget {
     final agentLocations = ref.watch(agentLocationVMProvider);
     var markerIcon = useState<Marker>(Marker(markerId: MarkerId("Dummy")));
     var deliveryMarker = useState<Marker>(Marker(markerId: MarkerId("Dummy Delivery Location")));
+    var agentName = useState<String>("Agent");
     var center = useState<LatLng>(LatLng(12.50, 80.00));
     var locationShowEnabled = useState<bool>(false);
     var polyCoordinates = useState<Set<Polyline>>({});
@@ -41,6 +42,9 @@ class MyLocationWeb extends HookConsumerWidget {
     void getMarkers() async {
       Marker? yourMarker = agentLocations.createMarkerForAgent(myID);
       markerIcon.value = yourMarker!;
+      String? yourName = yourMarker.infoWindow.title;
+      agentName.value = yourName ?? "Agent";
+
       center.value = yourMarker.position;
       _controller?.animateCamera(CameraUpdate.newLatLng(center.value)); // setting that as the location
     }
@@ -110,10 +114,11 @@ class MyLocationWeb extends HookConsumerWidget {
 
 
     return Consumer(
+
       builder: (context, ref, child) {
         return Scaffold(
         appBar: AppBar(
-          title: Text('Agent1'),
+          title: Text('$agentName.value'),
           backgroundColor: Colors.green[700],
         ),
         body: Stack(

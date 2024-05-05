@@ -4,7 +4,8 @@ import 'package:geo_agency_mobile/service/agent_locations/agent_location_service
 import 'package:geo_agency_mobile/service/service_locator.dart';
 import 'package:geo_agency_mobile/utils/ResponseHandler.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
-import 'package:geo_agency_mobile/view/components/Chat.dart';
+import 'package:geo_agency_mobile/view/desktop/agent_chat/Chat_Web.dart';
+import 'package:geo_agency_mobile/view/mobile/agent_chat/Chat.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:riverpod/riverpod.dart';
 import 'package:geo_agency_mobile/helper/google_map/marker_helper.dart';
@@ -72,7 +73,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
   }
 
   // Create markers for agents
-  Future<Set<Marker>> createMarkers() async{
+  Future<Set<Marker>> createMarkers(String device) async{
         try {
         final agentInfos = agentLocationService.retrieveAgentInfo();
           Map<int, dynamic> filteredAgents = {};
@@ -95,7 +96,11 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
               position: latAndLon,
               onTap: () {
                   print("Redirecting to " + value["name"] + "'s chat");
-                  redirectToAnotherWidget(ChatToAgentMobile());
+                  if(device == "mobile") {
+                  redirectToAnotherWidget(ChatToAgentMobile(value["name"]));
+                  } else {
+                  redirectToAnotherWidget(ChatToAgentWeb(value["name"]));
+                  }
                 },
               infoWindow: InfoWindow(
                 
