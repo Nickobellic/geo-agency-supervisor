@@ -19,11 +19,26 @@ class AgentLocationService {
 
   Future<List<double>> getCurrentLocation() async{
     try {
-    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      await Geolocator.requestPermission();
+      LocationPermission permission;
+
+  // Test if location services are enabled.
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (serviceEnabled) {
+      permission = await Geolocator.checkPermission();
+        if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+        }
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
     final latitude = position.latitude;
     final longitude = position.longitude;
     return [latitude, longitude];
-    } catch(e) {
+  } else {
+    Future.error("Enable Location Services");
+    return [];
+  }
+  }
+    catch(e) {
       talker.error("Error in getting Current Location: $e.toString()");
       return [];
     }

@@ -9,7 +9,7 @@ late Socket socket;
     try {
      
       // Configure socket transports must be specified
-      socket = io('http://127.0.0.1:3000', <String, dynamic>{
+      socket = io('http://192.168.1.6:3000', <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': false,
       });

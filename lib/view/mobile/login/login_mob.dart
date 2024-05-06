@@ -1,7 +1,10 @@
 import "package:flutter/material.dart";
+import 'dart:async';
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import 'package:geo_agency_mobile/view/mobile/login/login_success_mob.dart';
+import 'package:geo_agency_mobile/helper/socket_events.dart';
 import 'package:geo_agency_mobile/view/mobile/agent_locations/agent_location_map.dart';
+import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:geo_agency_mobile/view/mobile/login/login_failed_mob.dart';
 import 'package:geo_agency_mobile/view/mobile/my_location/my_location.dart';
 import '../../../view_model/login/login_view_model.dart';
@@ -24,11 +27,25 @@ class LoginMobile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final usernameText = useState('');
     final passwordText = useState('');
+    final state =
+            ref.watch(loginVMProvider); // Using the View Model Provider
+    final agentLocations = ref.watch(agentLocationVMProvider);
+
+          useEffect(()  {
+          void getLocation() async {
+                dynamic location = await agentLocations.currentLocation();
+               checkLocation(location);
+          }
+
+          Timer.periodic((Duration(seconds: 1 )), (timer) {
+            getLocation();
+          });
+        });
+    
     return Consumer(
       // Use Consumer to access the Provider methods
       builder: (context, ref, child) {
-        final state =
-            ref.watch(loginVMProvider); // Using the View Model Provider
+
 
         return Scaffold(
             appBar: AppBar(
