@@ -15,8 +15,8 @@ import 'package:geo_agency_mobile/utils/Globals.dart';
 final LoginRepositoryRemoteProvider = Provider<LoginRepositoryRemote>(
     (_) => LoginRepositoryRemoteImpl()); // Provider for Login Repository
 
-final errorMessageProvider = StateProvider<String>((ref) => 'Failed to get user details');
-
+final errorMessageProvider =
+    StateProvider<String>((ref) => 'Failed to get user details');
 
 class LoginRepositoryRemoteImpl extends LoginRepositoryRemote {
   final talker = Talker();
@@ -27,10 +27,11 @@ class LoginRepositoryRemoteImpl extends LoginRepositoryRemote {
     // Get random User detail from API through Dio
     try {
       talker.info("Initiating the API call");
-      final dynamic response = await DioClient.instance
-          .get("/users/2"); // Response from DioClient in Helper
-      data.usersFromDB
-          .add(User(1000+data.usersFromDB.length,response["data"]["email"], response["data"]["first_name"], 'agent'));
+      final dioClient = DioClient(reqresBaseUrl);
+      final dynamic response =
+          await dioClient.get("/users/2"); // Response from DioClient in Helper
+      data.usersFromDB.add(User(1000 + data.usersFromDB.length,
+          response["data"]["email"], response["data"]["first_name"], 'agent'));
       talker.info("User detail retrieved from API");
       return ([response["data"]["email"], response["data"]["first_name"]]);
     } on DioException catch (e) {

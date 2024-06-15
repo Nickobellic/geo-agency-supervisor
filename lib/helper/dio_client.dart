@@ -3,73 +3,62 @@ import 'package:talker_dio_logger/talker_dio_logger.dart';
 
 // Class that is involved in making HTTP Requests
 
-const baseUrl = "https://reqres.in/api";
-
 /// Create a singleton class to contain all Dio methods and helper functions
 class DioClient {
-  DioClient._();
+  final Dio _dio;
 
-  static final instance = DioClient._();
+  DioClient(String baseUrl)
+      : _dio = Dio(
+          BaseOptions(
+            baseUrl: baseUrl,
+            connectTimeout: const Duration(seconds: 60),
+            receiveTimeout: const Duration(seconds: 60),
+            responseType: ResponseType.json,
+          ),
+        )..interceptors.add(
+            TalkerDioLogger(
+              settings: const TalkerDioLoggerSettings(
+                printRequestHeaders: true,
+                printResponseHeaders: true,
+                printResponseMessage: true,
+              ),
+            ),
+          );
 
-  final _dio = Dio(
-      BaseOptions(
-          baseUrl: baseUrl,
-          connectTimeout: const Duration(seconds: 60),
-          receiveTimeout: const Duration(seconds: 60),
-          responseType: ResponseType.json
-      )
-  )..interceptors.add(
-    TalkerDioLogger(
-      settings: const TalkerDioLoggerSettings(
-        printRequestHeaders: true,
-        printResponseHeaders: true,
-        printResponseMessage: true,
-      ),
-    ),
-  );
-
-
-
-  get dio => _dio;
-  
+  Dio get dio => _dio;
 
   ///Get Method
-  Future<Map<String, dynamic>> get(
-      String path, {
-          Map<String, dynamic>? queryParameters,
-          Options? options,
-          CancelToken? cancelToken,
-          ProgressCallback? onReceiveProgress
-        }) async{
-          try{
-                final Response response = await _dio.get(
-                 path,
-                 queryParameters: queryParameters,
-                 options: options,
-                 cancelToken: cancelToken,
-                  onReceiveProgress: onReceiveProgress,
-                );
-                if(response.statusCode == 200){
-                  return response.data;
-                }
-                throw "something went wrong";
-            } catch(e){
-            rethrow;
-          }
+  Future<Map<String, dynamic>> get(String path,
+      {Map<String, dynamic>? queryParameters,
+      Options? options,
+      CancelToken? cancelToken,
+      ProgressCallback? onReceiveProgress}) async {
+    try {
+      final Response response = await _dio.get(
+        path,
+        queryParameters: queryParameters,
+        options: options,
+        cancelToken: cancelToken,
+        onReceiveProgress: onReceiveProgress,
+      );
+      if (response.statusCode == 200) {
+        return response.data;
+      }
+      throw "something went wrong";
+    } catch (e) {
+      rethrow;
+    }
   }
 
-
   ///Post Method
-  Future<Map<String, dynamic>> post(
-      String path, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress
-      }) async{
-    try{
+  Future<Map<String, dynamic>> post(String path,
+      {data,
+      Map<String, dynamic>? queryParameters,
+      Options? options,
+      CancelToken? cancelToken,
+      ProgressCallback? onSendProgress,
+      ProgressCallback? onReceiveProgress}) async {
+    try {
       final Response response = await _dio.post(
         path,
         data: data,
@@ -79,27 +68,24 @@ class DioClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      if(response.statusCode == 200 || response.statusCode == 201){
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return response.data;
       }
       throw "something went wrong";
-    } catch (e){
+    } catch (e) {
       rethrow;
     }
   }
 
-
   ///Put Method
-  Future<Map<String, dynamic>> put(
-      String path, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress
-      }) async{
-    try{
+  Future<Map<String, dynamic>> put(String path,
+      {data,
+      Map<String, dynamic>? queryParameters,
+      Options? options,
+      CancelToken? cancelToken,
+      ProgressCallback? onSendProgress,
+      ProgressCallback? onReceiveProgress}) async {
+    try {
       final Response response = await _dio.put(
         path,
         data: data,
@@ -109,45 +95,37 @@ class DioClient {
         onSendProgress: onSendProgress,
         onReceiveProgress: onReceiveProgress,
       );
-      if(response.statusCode == 200){
+      if (response.statusCode == 200) {
         return response.data;
       }
       throw "something went wrong";
-    } catch (e){
+    } catch (e) {
       rethrow;
     }
   }
 
-
-
   ///Delete Method
-  Future<dynamic> delete(
-      String path, {
-        data,
-        Map<String, dynamic>? queryParameters,
-        Options? options,
-        CancelToken? cancelToken,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress
-      }) async{
-    try{
+  Future<dynamic> delete(String path,
+      {data,
+      Map<String, dynamic>? queryParameters,
+      Options? options,
+      CancelToken? cancelToken,
+      ProgressCallback? onSendProgress,
+      ProgressCallback? onReceiveProgress}) async {
+    try {
       final Response response = await _dio.delete(
         path,
         data: data,
         queryParameters: queryParameters,
         options: options,
         cancelToken: cancelToken,
-
       );
-      if(response.statusCode == 204){
+      if (response.statusCode == 204) {
         return response.data;
       }
       throw "something went wrong";
-    } catch (e){
+    } catch (e) {
       rethrow;
     }
   }
-
-
-
 }
