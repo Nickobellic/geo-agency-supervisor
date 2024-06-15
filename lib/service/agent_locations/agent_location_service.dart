@@ -20,10 +20,15 @@ class AgentLocationService {
   Stream<List<double>> getLocationUpdates() {
     StreamSubscription<Position> _positionStream;
     List<double> coordinates = [];
-    final LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 1,
-    );
+    final LocationSettings locationSettings = AndroidSettings(
+        accuracy: LocationAccuracy.bestForNavigation,
+        intervalDuration: const Duration(milliseconds: 500),
+        foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationText: "Fetching your location",
+          notificationTitle: "Geo Agency Supervisor",
+          enableWakeLock: true,
+        ),
+        distanceFilter: 1);
 
     return Geolocator.getPositionStream(locationSettings: locationSettings)
         .map((Position position) => [position.latitude, position.longitude]);

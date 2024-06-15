@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:geo_agency_mobile/service/agent_locations/agent_location_service.dart';
@@ -137,6 +139,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel {
       double latitude = thatAgentDetails!.position[0];
       double longitude = thatAgentDetails.position[1];
       String? agentName = thatAgentDetails.agentName;
+      BitmapDescriptor carIcon;
 
       var desktopIcon, mobileIcon;
       final asset = await rootBundle.load('assets/images/agent_icon.jpg');
@@ -144,10 +147,16 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel {
         final Uint8List markerIcoenter =
             await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
         desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+        carIcon = await BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(platform: TargetPlatform.windows),
+            "assets/images/delivery_car.png");
       } else {
         final Uint8List markerIcoenter =
             await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
         mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+        carIcon = await BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(platform: TargetPlatform.android),
+            "assets/images/delivery_car.png");
       }
 
       Marker thatAgentMarker = Marker(
@@ -156,7 +165,8 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel {
           infoWindow: InfoWindow(
             title: agentName ?? 'Agent',
           ),
-          icon: desktopIcon ?? mobileIcon);
+          icon: carIcon);
+      // icon: desktopIcon ?? mobileIcon);
 
       return thatAgentMarker;
     } catch (e) {

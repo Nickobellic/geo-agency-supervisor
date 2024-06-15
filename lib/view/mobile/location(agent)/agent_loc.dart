@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter_compass/flutter_compass.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:geo_agency_mobile/helper/socket_events.dart';
 import 'package:geo_agency_mobile/utils/MapCenterBounds.dart' as get_center;
@@ -22,11 +23,13 @@ class SingleAgentMobile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final agentLocations = ref.watch(agentLocationVMProvider);
+    final CompassEvent evt;
     var markerIcon = useState<Marker>(Marker(markerId: MarkerId("Dummy")));
     var deliveryMarker =
         useState<Marker>(Marker(markerId: MarkerId("Dummy Delivery Location")));
     var center = useState<LatLng>(LatLng(12.50, 80.00));
     var agentName = useState<String>("Agent");
+    var agentDirection = useState<double?>(0.00);
     var locationShowEnabled = useState<bool>(false);
     var polyCoordinates = useState<Set<Polyline>>({});
     Map<PolylineId, Polyline> polylines = {};
@@ -71,11 +74,19 @@ class SingleAgentMobile extends HookConsumerWidget {
       void getMarkers() async {
         Marker? yourMarker =
             await agentLocations.createMarkerForAgent(myID, "mobile");
+
         markerIcon.value = yourMarker!;
+
+        // Rotate the marker according to the direction
+        FlutterCompass.events?.listen((event) {
+          agentDirection.value = event.heading;
+        });
+
         markerIcon.value = Marker(
             markerId: markerIcon.value.markerId,
             infoWindow: yourMarker.infoWindow,
             position: LatLng(center.value.latitude, center.value.longitude),
+            rotation: agentDirection.value ?? 0.00,
             icon: yourMarker.icon);
         //LatLng(center.value.latitude, center.value.longitude);
         String? yourName = yourMarker.infoWindow.title;
@@ -113,7 +124,7 @@ class SingleAgentMobile extends HookConsumerWidget {
                   onMapCreated: _onMapCreated,
                   initialCameraPosition: CameraPosition(
                     target: center.value,
-                    zoom: 50.0,
+                    zoom: 20.0,
                   ),
                   markers: {markerIcon.value, deliveryMarker.value},
                   polylines: polyCoordinates.value,
