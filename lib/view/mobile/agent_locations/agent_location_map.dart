@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:geo_agency_mobile/utils/MapCenterBounds.dart' as get_center;
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:flutter/material.dart';
+import 'package:geo_agency_mobile/helper/socket_connect.dart';
+import 'package:geo_agency_mobile/helper/socket_events.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -20,6 +22,8 @@ class AgentLocationMapMobile extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+
+
     final agentLocations = ref.watch(agentLocationVMProvider);
     var markerList = useState<Set<Marker>>({});
     var dropdownvalue = useState<String>(" ");
@@ -53,9 +57,12 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   for (var marker in markerList.value) {
     if (index == 1) {
       LatLng currentPosition = marker.position;
-      LatLng newPosition = LatLng(currentPosition.latitude + 0.000002, currentPosition.longitude + 0.000002);
-
-      if(dropdownvalue.value == "Agent3") {
+      
+      //LatLng newPosition = LatLng(currentPosition.latitude + 0.000002, currentPosition.longitude + 0.000002);
+      socket.on("to_supervisor", (data) {
+        print("From Socket $data");
+        LatLng newPosition = LatLng(data["latitude"], data["longitude"]);
+        if(dropdownvalue.value == "Agent3") {
         center.value = newPosition;
         _controller?.animateCamera(CameraUpdate.newLatLng(center.value));
       }
@@ -67,6 +74,9 @@ class AgentLocationMapMobile extends HookConsumerWidget {
         infoWindow: InfoWindow(title: marker.infoWindow.title, snippet: marker.infoWindow.snippet)
       );
       updatedMarkers.add(updatedMarker);
+      });
+
+
     } else {
       updatedMarkers.add(marker);
     }
@@ -76,9 +86,8 @@ class AgentLocationMapMobile extends HookConsumerWidget {
   
       }
 
-      /*Timer.periodic(Duration(seconds: 1), (timer) {
-      moveSecondMarker();
-    });*/
+      Future.delayed(Duration(seconds: 2), moveSecondMarker);
+      
     
     });
 

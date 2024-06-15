@@ -11,7 +11,7 @@ late Socket socket;
       // Configure socket transports must be specified
       socket = io('http://192.168.1.6:3000', <String, dynamic>{
         'transports': ['websocket'],
-        'autoConnect': false,
+        'autoConnect': true,
       });
      
       // Connect to websocket

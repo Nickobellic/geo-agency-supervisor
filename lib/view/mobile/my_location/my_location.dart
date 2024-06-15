@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:geo_agency_mobile/utils/Globals.dart';
+import 'package:geo_agency_mobile/helper/socket_events.dart';
 import 'package:geo_agency_mobile/utils/MapCenterBounds.dart' as get_center;
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,19 @@ class MyLocationMobile extends HookConsumerWidget {
     Size size = MediaQuery.of(context).size;
     double width = size.width*0.75;
     double height = size.height*0.05;
+
+    useEffect(()  {
+          // Get current location of the logged in User
+          void getLocation() async {
+                dynamic location = await agentLocations.currentLocation();
+               checkLocation({"locationDetails": location, "agent": myID });
+               center.value = LatLng(location[0], location[1]);
+          }
+
+          Timer.periodic((Duration(seconds: 1 )), (timer) {
+            getLocation();
+          });
+        });
 
     useEffect(() {
     void getMarkers() async {

@@ -2,11 +2,11 @@ import "package:flutter/material.dart";
 import 'dart:async';
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import 'package:geo_agency_mobile/view/mobile/login/login_success_mob.dart';
-import 'package:geo_agency_mobile/helper/socket_events.dart';
 import 'package:geo_agency_mobile/view/mobile/agent_locations/agent_location_map.dart';
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:geo_agency_mobile/view/mobile/login/login_failed_mob.dart';
 import 'package:geo_agency_mobile/view/mobile/my_location/my_location.dart';
+import 'package:geo_agency_mobile/view/mobile/location(agent)/agent_loc.dart';
 import '../../../view_model/login/login_view_model.dart';
 import '../../rules/login_validation.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -27,26 +27,12 @@ class LoginMobile extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final usernameText = useState('');
     final passwordText = useState('');
-    final state =
-            ref.watch(loginVMProvider); // Using the View Model Provider
+    final state = ref.watch(loginVMProvider); // Using the View Model Provider
     final agentLocations = ref.watch(agentLocationVMProvider);
 
-          useEffect(()  {
-          void getLocation() async {
-                dynamic location = await agentLocations.currentLocation();
-               checkLocation(location);
-          }
-
-          Timer.periodic((Duration(seconds: 1 )), (timer) {
-            getLocation();
-          });
-        });
-    
     return Consumer(
       // Use Consumer to access the Provider methods
       builder: (context, ref, child) {
-
-
         return Scaffold(
             appBar: AppBar(
               title: const Text("Login"),
@@ -107,33 +93,34 @@ class LoginMobile extends HookConsumerWidget {
                             dynamic userDetail = await state
                                 .getOneFromApi(); // Sample DIO request to get User detail
                             //print(userDetail);
+                            print(usernameText.value + passwordText.value);
                             Map<String, dynamic> existingUser =
                                 await state.validateUser(
                                     usernameText.value,
                                     passwordText
                                         .value); // Validates Login details and saves data inside Shared Preferences
-                              
-                            dynamic userInfo = await state.getUserFilledInfo(); // Read data from Shared Preference
+
+                            dynamic userInfo = await state
+                                .getUserFilledInfo(); // Read data from Shared Preference
                             print(
                                 existingUser); // Printing the data stored in Shared Preferences
                             //@GR - Show snackbar from Repo layer, use globalkey without context. Annotate with @ResponseHandler - see login_repo_remote
                             if (existingUser["valid"] == true) {
-                              if(existingUser["role"] == "admin") {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                         AgentLocationMapMobile()),
-                              );                                
-                              } else if(existingUser["role"] == "agent") {
+                              if (existingUser["role"] == "admin") {
                                 Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                         MyLocationMobile(existingUser["id"])),
-                              );
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          AgentLocationMapMobile()),
+                                );
+                              } else if (existingUser["role"] == "agent") {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => SingleAgentMobile(
+                                          existingUser["id"])),
+                                );
                               }
-
                             } else {
                               Navigator.push(
                                 context,

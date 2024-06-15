@@ -16,12 +16,10 @@ final agentLocationVMProvider = Provider<AgentLocationsViewModelImpl>((ref) {
   return container<AgentLocationsViewModelImpl>();
 });
 
-class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
-
-
+class AgentLocationsViewModelImpl extends AgentLocationsViewModel {
   final AgentLocationService agentLocationService;
   AgentLocationsViewModelImpl({required this.agentLocationService});
-  
+
   // Get All Agent's Information
   @ResponseHandler()
   Map<int, dynamic> getAgentInfo() {
@@ -30,15 +28,15 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
 
       Map<int, dynamic> filteredAgents = {};
 
-      for(var key in agentDetails.keys) {
-        if(agentDetails[key]["location_share_enabled"] == true) {
+      for (var key in agentDetails.keys) {
+        if (agentDetails[key]["location_share_enabled"] == true) {
           filteredAgents[key] = agentDetails[key];
         }
       }
 
       //showSnackbar("Agent Details Obtained Successfully");
       return filteredAgents;
-    } catch(e) {
+    } catch (e) {
       //showSnackbar("Error in getting Agent Details: $e.toString()");
       return {};
     }
@@ -49,7 +47,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     try {
       final agentDetails = agentLocationService.getLatLonMean();
       return LatLng(agentDetails[0], agentDetails[1]);
-    } catch(e) {
+    } catch (e) {
       return LatLng(12.50, 80.00);
     }
   }
@@ -59,82 +57,81 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     try {
       talker.info("Initializing Agent ID fetch for Dropdown");
       final agentInfos = agentLocationService.retrieveAgentInfo();
-      int foundAgentID = agentInfos.keys.firstWhere((agent_id) => agentInfos[agent_id]["name"] == agent_name, orElse: () => 0);
+      int foundAgentID = agentInfos.keys.firstWhere(
+          (agent_id) => agentInfos[agent_id]["name"] == agent_name,
+          orElse: () => 0);
       talker.info("Agent ID retrieved for Dropdown successfully");
 
       talker.info("Retrieving position of the Agent");
       List<double> agentPosition = agentInfos[foundAgentID]["position"];
 
       return agentPosition;
-    } catch(e) {
-      talker.error("Error in fetching Agent ID from Dropdown Label: $e.toString()");
+    } catch (e) {
+      talker.error(
+          "Error in fetching Agent ID from Dropdown Label: $e.toString()");
       return [];
     }
   }
 
   // Create markers for agents
-  Future<Set<Marker>> createMarkers(String device) async{
-        try {
-        final agentInfos = agentLocationService.retrieveAgentInfo();
-          Map<int, dynamic> filteredAgents = {};
+  Future<Set<Marker>> createMarkers(String device) async {
+    try {
+      final agentInfos = agentLocationService.retrieveAgentInfo();
+      Map<int, dynamic> filteredAgents = {};
 
-      for(var key in agentInfos.keys) {
-        if(agentInfos[key]["location_share_enabled"] == true) {
+      for (var key in agentInfos.keys) {
+        if (agentInfos[key]["location_share_enabled"] == true) {
           filteredAgents[key] = agentInfos[key];
         }
       }
 
       var desktopIcon, mobileIcon;
 
-
       final asset = await rootBundle.load('assets/images/agent_icon.jpg');
-      if(device =="desktop") {
-      final Uint8List markerIcoenter = await getBytesFromCanvas(30,30, asset.buffer.asUint8List());
-      desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      if (device == "desktop") {
+        final Uint8List markerIcoenter =
+            await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
+        desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
       } else {
-      final Uint8List markerIcoenter = await getBytesFromCanvas(100,80, asset.buffer.asUint8List());
-      mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+        final Uint8List markerIcoenter =
+            await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+        mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
       }
-          //final customImage = await BitmapDescriptor.fromAssetImage(
-         //ImageConfiguration(devicePixelRatio: 2.5),
-         //'assets/images/agent_icon.png');
-        Set<Marker> markerList = {};
+      //final customImage = await BitmapDescriptor.fromAssetImage(
+      //ImageConfiguration(devicePixelRatio: 2.5),
+      //'assets/images/agent_icon.png');
+      Set<Marker> markerList = {};
 
-        filteredAgents.forEach((key, value) {
-          final LatLng latAndLon = LatLng(value["position"][0], value["position"][1]);
-          markerList.add(
-            Marker(
-              markerId: MarkerId(value["name"]),
-              position: latAndLon,
-              icon: desktopIcon ?? mobileIcon,
-              onTap: () {
-                  print("Redirecting to " + value["name"] + "'s chat");
-                  if(device == "mobile") {
-                  redirectToAnotherWidget(ChatToAgentMobile(value["name"]));
-                  } else {
-                  redirectToAnotherWidget(ChatToAgentWeb(value["name"]));
-                  }
-                },
-              infoWindow: InfoWindow(
-                
-                title: value["name"],
-                snippet: "$key",
-                
-
-              
-              )
-              //icon: customImage
+      filteredAgents.forEach((key, value) {
+        final LatLng latAndLon =
+            LatLng(value["position"][0], value["position"][1]);
+        markerList.add(Marker(
+            markerId: MarkerId(value["name"]),
+            position: latAndLon,
+            icon: desktopIcon ?? mobileIcon,
+            onTap: () {
+              print("Redirecting to " + value["name"] + "'s chat");
+              if (device == "mobile") {
+                redirectToAnotherWidget(ChatToAgentMobile(value["name"]));
+              } else {
+                redirectToAnotherWidget(ChatToAgentWeb(value["name"]));
+              }
+            },
+            infoWindow: InfoWindow(
+              title: value["name"],
+              snippet: "$key",
             )
-          );
-        });
+            //icon: customImage
+            ));
+      });
 
-        return markerList;
-        } catch(e) {
-          return {};
-        }
+      return markerList;
+    } catch (e) {
+      return {};
+    }
   }
 
-  Future<Marker>? createMarkerForAgent(int agent_id, String device) async{
+  Future<Marker>? createMarkerForAgent(int agent_id, String device) async {
     try {
       final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
       double latitude = thatAgentDetails!.position[0];
@@ -143,64 +140,63 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
 
       var desktopIcon, mobileIcon;
       final asset = await rootBundle.load('assets/images/agent_icon.jpg');
-      if(device == "desktop") {
-      final Uint8List markerIcoenter = await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
-      desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
-      }
-      else {
-      final Uint8List markerIcoenter = await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
-      mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      if (device == "desktop") {
+        final Uint8List markerIcoenter =
+            await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
+        desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      } else {
+        final Uint8List markerIcoenter =
+            await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+        mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
       }
 
       Marker thatAgentMarker = Marker(
-        markerId: MarkerId("$agent_id"),
-        position: LatLng(latitude, longitude),
-        infoWindow: InfoWindow(
-          title: agentName ?? 'Agent',
-        ),
-        icon: desktopIcon ?? mobileIcon
-        );
+          markerId: MarkerId("$agent_id"),
+          position: LatLng(latitude, longitude),
+          infoWindow: InfoWindow(
+            title: agentName ?? 'Agent',
+          ),
+          icon: desktopIcon ?? mobileIcon);
 
       return thatAgentMarker;
-    } catch(e) {
-      talker.error("Error in creating Marker for Agent ID $agent_id: $e.toString()");
+    } catch (e) {
+      talker.error(
+          "Error in creating Marker for Agent ID $agent_id: $e.toString()");
       return Future.value(null);
     }
   }
 
-    Future<Marker>? createDeliveryMarkerForAgent(int agent_id, String device) async {
+  Future<Marker>? createDeliveryMarkerForAgent(
+      int agent_id, String device) async {
     try {
       final thatAgentDetails = agentLocationService.getDetailOfAgent(agent_id);
       double latitude = thatAgentDetails!.deliveryPosition[0];
       double longitude = thatAgentDetails.deliveryPosition[1];
-      
+
       var desktopIcon, mobileIcon;
 
       final asset = await rootBundle.load('assets/images/delivery_icon.png');
 
-      if(device == "desktop") {
-      final Uint8List markerIcoenter = await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
-      desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+      if (device == "desktop") {
+        final Uint8List markerIcoenter =
+            await getBytesFromCanvas(30, 30, asset.buffer.asUint8List());
+        desktopIcon = BitmapDescriptor.fromBytes(markerIcoenter);
       } else {
-        final Uint8List markerIcoenter = await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
-      mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
+        final Uint8List markerIcoenter =
+            await getBytesFromCanvas(100, 80, asset.buffer.asUint8List());
+        mobileIcon = BitmapDescriptor.fromBytes(markerIcoenter);
       }
 
-
       Marker thatAgentDeliveryMarker = Marker(
-        markerId: MarkerId("$agent_id-delivery"),
-        position: LatLng(latitude, longitude),
-        icon: desktopIcon ?? mobileIcon,
-        infoWindow: InfoWindow(
-
-
-          title: "Delivery Location of $agent_id"
-        )
-        );
+          markerId: MarkerId("$agent_id-delivery"),
+          position: LatLng(latitude, longitude),
+          icon: desktopIcon ?? mobileIcon,
+          infoWindow: InfoWindow(title: "Delivery Location of $agent_id"));
 
       return thatAgentDeliveryMarker;
-    } catch(e) {
-      talker.error("Error in creating Marker for Agent ID $agent_id: $e.toString()");
+    } catch (e) {
+      talker.error(
+          "Error in creating Marker for Agent ID $agent_id: $e.toString()");
       return Future.value(null);
     }
   }
@@ -212,8 +208,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
       bool locationSettings = agentDetails!.showLocation;
       talker.info("Agent Location Sharing Settings fetched");
       return locationSettings;
-
-    } catch(e) {
+    } catch (e) {
       talker.error("Error in getting Location Sharing Settings: $e.toString()");
       return false;
     }
@@ -225,7 +220,7 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
       talker.info("Updating Agent Location settings");
       agentDetails!.showLocation = settings;
       talker.info("Agent Location settings updated successfully");
-    } catch(e) {
+    } catch (e) {
       talker.error("Error in updating Agent Location Settings: $e.toString()");
     }
   }
@@ -235,20 +230,29 @@ class AgentLocationsViewModelImpl extends AgentLocationsViewModel{
     try {
       final thatAgentLocation = agentLocationService.retrieveLatLons();
       agentLocationService.updateLocation(1001, thatAgentLocation[1]);
-    } catch(e) {
+    } catch (e) {
       talker.error("Error in updating First Agent Location: $e.toString()");
     }
   }
 
-
   // Get Current Location of all agents
-  Future<List<double>> currentLocation() async{
+  Future<List<double>> currentLocation() async {
     try {
-      final updatedLocation = await agentLocationService.getCurrentLocation();
-      return updatedLocation; 
-    } catch(e) {
+      final location = await agentLocationService.getCurrentLocation();
+      return location;
+    } catch (e) {
       talker.error("Error in getting Current Location: $e.toString()");
       return [];
+    }
+  }
+
+  Stream<List<double>> getUpdatedcurrentLocation() {
+    try {
+      final updatedLocation = agentLocationService.getLocationUpdates();
+      return updatedLocation;
+    } catch (e) {
+      talker.error("Error in getting Updated Location: $e.toString()");
+      return Stream.empty();
     }
   }
 }

@@ -7,9 +7,14 @@ void handleLocationListen(dynamic data) {
 
 void checkLocation(dynamic location) {
   socket.emit("location", {
-    "latitude": location[0],
-    "longitude": location[1]
+    "latitude": location["locationDetails"][0],
+    "longitude": location["locationDetails"][1],
+    "agentID": location["agentID"]
   });
-  print("Latitude of Agent: $location[0]");
-  print("Longitude of Agent: $location[1]");
+  print("Latitude of Agent: $location['locationDetails'][0]");
+  print("Longitude of Agent: $location['locationDetails'][1]");
+}
+
+void getDataForSupervisor(dynamic data) {
+  print("Read by Supervisor: $data");
 }
