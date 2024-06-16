@@ -27,8 +27,9 @@ Future<void> main() async {
   builder.add((container) => AgentLocationsViewModelImpl(
       agentLocationService:
           container<AgentLocationService>())); // For Agent Location View Model
-  builder.add((container) =>
-      LocationAgentService(remoteRep: LocationAgentRemoteImpl()));
+  builder.add((container) => LocationAgentService(
+      remoteRep: LocationAgentRemoteImpl(),
+      singleAgentLocationLocal: AgentLocationsLocalImpl()));
   builder.add((container) => LocationAgentViewModelImpl(
       locAgentService: container<
           LocationAgentService>())); // For fetching single Agent Location

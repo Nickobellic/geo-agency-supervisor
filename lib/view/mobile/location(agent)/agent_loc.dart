@@ -6,6 +6,7 @@ import 'package:geo_agency_mobile/utils/MapCenterBounds.dart' as get_center;
 import 'package:geo_agency_mobile/view_model/agent_locations/agent_locations_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:geo_agency_mobile/view_model/location(agent)/location_agent_view_model.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -23,6 +24,8 @@ class SingleAgentMobile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final agentLocations = ref.watch(agentLocationVMProvider);
+    final locationAgent = ref.watch(locationAgentVMProvider);
+    var polylineSet = useState<List<LatLng>>([]);
     final CompassEvent evt;
     var markerIcon = useState<Marker>(Marker(markerId: MarkerId("Dummy")));
     var deliveryMarker =
@@ -43,16 +46,40 @@ class SingleAgentMobile extends HookConsumerWidget {
     final locationSnapshot = useStream(locationStream);
 
     useEffect(() {
+      void updatePolyline(source, destination) async {
+        polylineSet.value = await locationAgent.createLineStringsForPolyline(
+            [source[1], source[0]],
+            destination); // Put latitude first and longitude next
+        Polyline polyline = Polyline(
+            polylineId: PolylineId("Delivery Route $myID"),
+            color: Colors.lightBlue,
+            points: polylineSet.value);
+        polyCoordinates.value = {polyline};
+      }
+
       // Get current location of the logged in User
       void getLocation() async {
         dynamic location = await agentLocations.currentLocation();
-        checkLocation({"locationDetails": location, "agent": myID});
+        checkLocation(
+            {"locationDetails": location, "agent": myID}); // Socket listener
         center.value = LatLng(location[0], location[1]);
+
+        final theirDelivery = locationAgent.getAgentDeliveryLocation(myID);
+        updatePolyline(
+            [location[0], location[1]], [theirDelivery[1], theirDelivery[0]]);
         _controller?.animateCamera(CameraUpdate.newLatLng(center.value));
       }
 
       getLocation();
-    });
+
+      /*final timer = Timer.periodic(Duration(seconds: 5), (timer) {
+        final theirDelivery = locationAgent.getAgentDeliveryLocation(myID);
+        updatePolyline(
+            [center.value.latitude, center.value.longitude], theirDelivery);
+      });
+
+      return timer.cancel;*/
+    }, []);
 
     useEffect(() {
       if (locationSnapshot.hasData) {
@@ -60,6 +87,7 @@ class SingleAgentMobile extends HookConsumerWidget {
         final newLocation = locationSnapshot.data;
         if (newLocation != null && newLocation.isNotEmpty) {
           center.value = LatLng(newLocation[0], newLocation[1]);
+
           markerIcon.value = Marker(
               markerId: markerIcon.value.markerId,
               infoWindow: markerIcon.value.infoWindow,

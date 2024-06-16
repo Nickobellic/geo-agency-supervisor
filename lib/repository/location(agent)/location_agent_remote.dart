@@ -26,10 +26,17 @@ class LocationAgentRemoteImpl extends LocationAgentRemote {
   Future getPolylineData(List<double> startCoord, List<double> endCoord) async {
     try {
       talker.info("Initiating Polyline data fetch");
+      final startLongitude = startCoord[0];
+      final startLatitude = startCoord[1];
 
+      final endLongitude = endCoord[0];
+      final endLatitude = endCoord[1];
+      final endpoint =
+          "$pathParam?api_key=$osm_key&start=$startLongitude,$startLatitude&end=$endLongitude,$endLatitude";
+      print("start");
       final dioClient = DioClient(openStreetBaseUrl);
-      final dynamic response = await dioClient.get(
-          "$pathParam?api_key=$osm_key&start=$startCoord.toString()&end=$endCoord.toString()");
+      final dynamic response = await dioClient.get(endpoint);
+      print(response);
 
       showSnackbar("Polyline details obtained");
       return response;
