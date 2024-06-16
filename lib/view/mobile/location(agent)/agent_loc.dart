@@ -45,18 +45,18 @@ class SingleAgentMobile extends HookConsumerWidget {
 
     final locationSnapshot = useStream(locationStream);
 
-    useEffect(() {
-      void updatePolyline(source, destination) async {
-        polylineSet.value = await locationAgent.createLineStringsForPolyline(
-            [source[1], source[0]],
-            destination); // Put latitude first and longitude next
-        Polyline polyline = Polyline(
-            polylineId: PolylineId("Delivery Route $myID"),
-            color: Colors.lightBlue,
-            points: polylineSet.value);
-        polyCoordinates.value = {polyline};
-      }
+    void updatePolyline(source, destination) async {
+      polylineSet.value = await locationAgent.createLineStringsForPolyline(
+          [source[1], source[0]],
+          destination); // Put latitude first and longitude next
+      Polyline polyline = Polyline(
+          polylineId: PolylineId("Delivery Route $myID"),
+          color: Colors.lightBlue,
+          points: polylineSet.value);
+      polyCoordinates.value = {polyline};
+    }
 
+    useEffect(() {
       // Get current location of the logged in User
       void getLocation() async {
         dynamic location = await agentLocations.currentLocation();
@@ -71,15 +71,7 @@ class SingleAgentMobile extends HookConsumerWidget {
       }
 
       getLocation();
-
-      /*final timer = Timer.periodic(Duration(seconds: 5), (timer) {
-        final theirDelivery = locationAgent.getAgentDeliveryLocation(myID);
-        updatePolyline(
-            [center.value.latitude, center.value.longitude], theirDelivery);
-      });
-
-      return timer.cancel;*/
-    }, []);
+    });
 
     useEffect(() {
       if (locationSnapshot.hasData) {
@@ -96,6 +88,19 @@ class SingleAgentMobile extends HookConsumerWidget {
           _controller?.animateCamera(CameraUpdate.newLatLng(center.value));
         }
       }
+    });
+
+    useEffect(() {
+      final timer = Timer.periodic(Duration(seconds: 5), (timer) {
+        final theirDelivery = locationAgent.getAgentDeliveryLocation(myID);
+        final latitude = center.value.latitude;
+        final longitude = center.value.longitude;
+        print("From constantly updating loc one $latitude and $longitude");
+        updatePolyline([center.value.latitude, center.value.longitude],
+            [theirDelivery[1], theirDelivery[0]]);
+      });
+
+      return timer.cancel;
     });
 
     useEffect(() {
