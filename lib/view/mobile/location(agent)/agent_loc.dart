@@ -71,7 +71,7 @@ class SingleAgentMobile extends HookConsumerWidget {
       }
 
       getLocation();
-    });
+    }, []);
 
     useEffect(() {
       if (locationSnapshot.hasData) {
@@ -101,7 +101,7 @@ class SingleAgentMobile extends HookConsumerWidget {
       });
 
       return timer.cancel;
-    });
+    }, [center]);
 
     useEffect(() {
       void getMarkers() async {
@@ -157,7 +157,7 @@ class SingleAgentMobile extends HookConsumerWidget {
                   onMapCreated: _onMapCreated,
                   initialCameraPosition: CameraPosition(
                     target: center.value,
-                    zoom: 20.0,
+                    zoom: 40.00,
                   ),
                   markers: {markerIcon.value, deliveryMarker.value},
                   polylines: polyCoordinates.value,
