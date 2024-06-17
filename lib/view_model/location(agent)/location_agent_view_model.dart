@@ -62,4 +62,18 @@ class LocationAgentViewModelImpl extends LocationsAgentViewModel {
       return Future.value([]);
     }
   }
+
+  Future<double> calculateRemainingDistance(
+      List<double> start, List<double> end) async {
+    try {
+      final remainingDistance =
+          await locAgentService.getRemainingDistance(start, end);
+      talker.info("Sending calculated result from View Model");
+      return remainingDistance;
+    } catch (e) {
+      talker.error(
+          "Error in calculating Remaining Distance from View Model: $e.toString()");
+      return 0.00;
+    }
+  }
 }

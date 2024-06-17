@@ -5,7 +5,7 @@ import 'package:geo_agency_mobile/repository/agent_locations/agent_locations_loc
 import 'package:geo_agency_mobile/repository/location(agent)/location_agent_remote.dart';
 import 'package:geo_agency_mobile/utils/Globals.dart';
 import 'package:riverpod/riverpod.dart';
-
+import 'package:geolocator/geolocator.dart';
 import 'package:geo_agency_mobile/service/service_locator.dart';
 
 final agentLocationServiceProvider = Provider<LocationAgentService>((ref) {
@@ -46,6 +46,21 @@ class LocationAgentService {
       talker.error(
           "Error in getting Polyline JSON data from Service: $e.toString()");
       throw e.toString();
+    }
+  }
+
+  Future<double> getRemainingDistance(
+      List<double> start, List<double> end) async {
+    try {
+      talker.info("Retrieving remaining distance calculation from service");
+      double distance =
+          await Geolocator.distanceBetween(start[0], start[1], end[0], end[1]);
+      talker.info("Distance calculated successfully");
+      return distance;
+    } catch (e) {
+      talker.error(
+          "Error in getting remaining distance from service: $e.toString()");
+      return 0.00;
     }
   }
 }

@@ -31,6 +31,7 @@ class SingleAgentMobile extends HookConsumerWidget {
     var deliveryMarker =
         useState<Marker>(Marker(markerId: MarkerId("Dummy Delivery Location")));
     var center = useState<LatLng>(LatLng(12.50, 80.00));
+    var distanceRemaining = useState<String>("- Km");
     var agentName = useState<String>("Agent");
     var agentDirection = useState<double?>(0.00);
     var locationShowEnabled = useState<bool>(false);
@@ -54,6 +55,18 @@ class SingleAgentMobile extends HookConsumerWidget {
           color: Colors.lightBlue,
           points: polylineSet.value);
       polyCoordinates.value = {polyline};
+    }
+
+    void updateRemainingDistance(source, destination) async {
+      print("Calculating the remaining Distance");
+
+      final remainingDistance =
+          await locationAgent.calculateRemainingDistance(source, destination);
+
+      String inKms = (remainingDistance / 1000).toStringAsFixed(2);
+
+      distanceRemaining.value = "$inKms Km";
+      print("Remaining Distance: $inKms Km");
     }
 
     useEffect(() {
@@ -98,6 +111,8 @@ class SingleAgentMobile extends HookConsumerWidget {
         print("From constantly updating loc one $latitude and $longitude");
         updatePolyline([center.value.latitude, center.value.longitude],
             [theirDelivery[1], theirDelivery[0]]);
+        updateRemainingDistance(
+            [center.value.latitude, center.value.longitude], theirDelivery);
       });
 
       return timer.cancel;
@@ -207,7 +222,24 @@ class SingleAgentMobile extends HookConsumerWidget {
                         "Go to Delivery Location",
                         style: TextStyle(fontSize: 16.0),
                       )),
-                )
+                ),
+                Positioned(
+                    bottom: 100.00,
+                    left: 60.00,
+                    child: Container(
+                      color: Colors.blue,
+                      height: 30.00,
+                      child: Text(
+                        "  Remaining Distance: " +
+                            distanceRemaining.value +
+                            "  ",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontSize: 20.00,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ))
               ],
             ));
       },
